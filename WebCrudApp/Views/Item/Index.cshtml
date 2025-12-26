@@ -1,0 +1,75 @@
+﻿@model WebCrudApp.Models.ItemPageViewModel
+
+<h2>Malzeme işlemleri</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.HiddenFor(m => m.Item.LogicalRef)
+    <div>
+        <label>Kod</label>
+        @Html.TextBoxFor(m => m.Item.Code)
+    </div>
+
+    <div>
+        <label>Ad</label>
+        @Html.TextBoxFor(m => m.Item.Name)
+    </div>
+
+    <div>
+        <label>Birim Kullanım Şekli</label>
+        @Html.DropDownListFor(
+        m => m.Item.UnitUsageType,
+        new List<SelectListItem>
+        {
+        new SelectListItem { Text = "Sadece Adet", Value = "1" },
+        new SelectListItem { Text = "Adet + Koli (12)", Value = "2" }
+        },
+        "-- Seçiniz --"
+        )
+</div>
+
+
+<br />
+
+
+<button type="submit" name="action" value="create">Kaydet</button>
+<button type="submit" name="action" value="list">Listele</button>
+<button type="submit" name="action" value="/Item/Search">Bul</button>
+<button type="submit" name="action" value="update">Güncelle</button>
+<button type="submit" name="action" value="delete">Sil</button>
+
+}
+
+<hr />
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Code</th>
+            <th>Name</th>
+            <th>Active</th>
+            <th>Unit Set</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.ItemList)
+        {
+            <tr onclick="selectRow('@item.LogicalRef','@item.Code','@item.Name')">
+                <td>@item.Code</td>
+                <td>@item.Name</td>
+                <td>@(item.Active == 0 ? "Pasif" : "Aktif")</td>
+                <td>@item.UnitSetRef</td>
+               
+            
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+    function selectRow(id, code, name) {
+        document.getElementById("Item_LogicalRef").value = id;
+        document.getElementById("Item_Code").value = code;
+        document.getElementById("Item_Name").value = name;
+    }
+</script>
