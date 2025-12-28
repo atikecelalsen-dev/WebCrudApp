@@ -1,164 +1,240 @@
-﻿using Microsoft.Data.SqlClient;
-using System;
-using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 
 namespace WebCrudApp.Models
 {
     public class ItemViewModel
     {
-        // FORM ALANLARI
-        public int LogicalRef { get; set; }
-        public string Code { get; set; }
-        public string Name { get; set; }
-        public string SearchText { get; set; }
-        public int UnitSetRef { get; set; }
-        public int UnitUsageType { get; set; } // 1: Sadece Adet, 2: Adet + Koli
+        [JsonPropertyName("logicalRef")]
+        public int LOGICALREF { get; set; }
 
-        // CONNECTION STRING (Web.config YOK)
-        public static string ConnectionString =
-            "Data Source=Atike;Initial Catalog=GODENEME;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;";
+        [JsonPropertyName("code")]
+        public string CODE { get; set; }
 
-        // ANA INSERT METODU
-        public static void InsertItem(ItemViewModel model)
-        {
-            using (SqlConnection conn = new SqlConnection(ConnectionString))
-            {
-                conn.Open();
-                SqlTransaction tran = conn.BeginTransaction();
+        [JsonPropertyName("name")]
+        public string NAME { get; set; }
+        public int ACTIVE { get; set; }
+        public int CARDTYPE { get; set; }
 
-                try
-                {
-                    int itemLogicalRef;
-
-                    // 1️⃣ LG_001_ITEMS
-                    SqlCommand cmdItem = new SqlCommand(@"
-                        INSERT INTO LG_001_ITEMS
-                        (CODE, NAME, ACTIVE, CARDTYPE, CLASSTYPE, UNITSETREF)
-                        VALUES
-                        (@CODE, @NAME, 0, 1, 0, @UNITSETREF);
-
-                        SELECT SCOPE_IDENTITY();
-                    ", conn, tran);
-
-                    cmdItem.Parameters.AddWithValue("@CODE", model.Code);
-                    cmdItem.Parameters.AddWithValue("@NAME", model.Name);
-                    cmdItem.Parameters.AddWithValue("@UNITSETREF", 5); //SIMDILIK 5
-
-                    itemLogicalRef = Convert.ToInt32(cmdItem.ExecuteScalar());
-
-                    // 2️⃣ LG_001_ITMCLSAS
-                    SqlCommand cmdClass = new SqlCommand(@"
-                        INSERT INTO LG_001_ITMCLSAS (CHILDREF)
-                        VALUES (@CHILDREF)
-                    ", conn, tran);
-
-                    cmdClass.Parameters.AddWithValue("@CHILDREF", itemLogicalRef);
-                    cmdClass.ExecuteNonQuery();
-
-                    // 3️⃣ LG_001_ITMUNITA
-                    if (model.UnitUsageType == 1)
-                    {
-                        // 🔹 SADECE ADET (UNITLINEREF = 5)
-                        SqlCommand cmdUnit = new SqlCommand(@"
-                            INSERT INTO LG_001_ITMUNITA
-                            (ITEMREF, LINENR, UNITLINEREF, CONVFACT1, CONVFACT2)
-                            VALUES
-                            (@ITEMREF, 1, 5, 1, 1)
-                        ", conn, tran);
-
-                        cmdUnit.Parameters.AddWithValue("@ITEMREF", itemLogicalRef);
-                        cmdUnit.ExecuteNonQuery();
-                    }
-                    else if (model.UnitUsageType == 2)
-                    {
-                        // 🔹 ADET (23)
-                        SqlCommand cmdUnit1 = new SqlCommand(@"
-                            INSERT INTO LG_001_ITMUNITA
-                            (ITEMREF, LINENR, UNITLINEREF, CONVFACT1, CONVFACT2)
-                            VALUES
-                            (@ITEMREF, 1, 23, 1, 1)
-                        ", conn, tran);
-
-                        cmdUnit1.Parameters.AddWithValue("@ITEMREF", itemLogicalRef);
-                        cmdUnit1.ExecuteNonQuery();
-
-                        // 🔹 KOLİ (25) – 12 ADET
-                        SqlCommand cmdUnit2 = new SqlCommand(@"
-                            INSERT INTO LG_001_ITMUNITA
-                            (ITEMREF, LINENR, UNITLINEREF, CONVFACT1, CONVFACT2)
-                            VALUES
-                            (@ITEMREF, 2, 25, 1, 12)
-                        ", conn, tran);
-
-                        cmdUnit2.Parameters.AddWithValue("@ITEMREF", itemLogicalRef);
-                        cmdUnit2.ExecuteNonQuery();
-                    }
-
-                    // 4️⃣ COMMIT
-                    tran.Commit();
-                }
-                catch
-                {
-                    tran.Rollback();
-                    throw;
-                }
-            }
-        }
-
-       
-        public static void UpdateItem(ItemViewModel model)
-        {
-            using (SqlConnection conn = new SqlConnection(ConnectionString))
-            {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand(@"
-            UPDATE LG_001_ITEMS
-            SET CODE = @CODE,
-                NAME = @NAME, 
-                UNITSETREF = @UNITSETREF
-            WHERE LOGICALREF = @ID ", conn);
-
-              //  Unitsetref tablosunu da guncellememiz lazim
-
-                cmd.Parameters.AddWithValue("@CODE", model.Code);
-                cmd.Parameters.AddWithValue("@NAME", model.Name);
-                cmd.Parameters.AddWithValue("@UNITSETREF", model.UnitSetRef);
-                cmd.Parameters.AddWithValue("@ID", model.LogicalRef);
-
-                cmd.ExecuteNonQuery();
-            }
-        }
-
-        public static void DeleteItem(int logicalRef)
-        {
-            using (SqlConnection conn = new SqlConnection(ConnectionString))
-            {
-                conn.Open();
-                SqlTransaction tran = conn.BeginTransaction();
-
-                try
-                {
-                    new SqlCommand("DELETE FROM LG_001_ITMUNITA WHERE ITEMREF=@ID", conn, tran)
-                    { Parameters = { new SqlParameter("@ID", logicalRef) } }.ExecuteNonQuery();
-
-                    new SqlCommand("DELETE FROM LG_001_ITMCLSAS WHERE CHILDREF=@ID", conn, tran)
-                    { Parameters = { new SqlParameter("@ID", logicalRef) } }.ExecuteNonQuery();
-
-                    new SqlCommand("DELETE FROM LG_001_ITEMS WHERE LOGICALREF=@ID", conn, tran)
-                    { Parameters = { new SqlParameter("@ID", logicalRef) } }.ExecuteNonQuery();
-
-                    tran.Commit();
-                }
-                catch
-                {
-                    tran.Rollback();
-                    throw;
-                }
-            }
-        }
+        public int CLASSTYPE { get; set; }
+        public int UNITSETREF { get; set; }
 
 
+        //    public List<UnitSetViewModel> UnitSets { get; set; }
 
-    }
+        //    private static string connStr =
+        //        "Data Source=Atike;Initial Catalog=GODENEME;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;";
+
+        //    [HttpPost]
+
+
+        //    // 🔹 Listele
+        //    public static List<ItemViewModel> GetItems()
+        //    {
+        //        List<ItemViewModel> list = new();
+
+        //        using SqlConnection con = new SqlConnection(connStr);
+        //        SqlCommand cmd = new SqlCommand("SELECT LOGICALREF, CODE, NAME FROM LG_001_ITEMS", con);
+        //        con.Open();
+        //        using SqlDataReader dr = cmd.ExecuteReader();
+        //        while (dr.Read())
+        //        {
+        //            list.Add(new ItemViewModel
+        //            {
+        //                LOGICALREF = dr["LOGICALREF"] != DBNull.Value ? Convert.ToInt32(dr["LOGICALREF"]) : 0,
+        //                CODE = dr["CODE"].ToString(),
+        //                NAME = dr["NAME"].ToString(),
+        //                ACTIVE=0,
+        //                CARDTYPE=1
+        //});
+        //        }
+
+        //        return list;
+        //    }
+
+        //    // 🔹 Arama
+        //    public static List<ItemViewModel> Search(string code, string name)
+        //    {
+        //        List<ItemViewModel> list = new();
+
+        //        using SqlConnection con = new SqlConnection(connStr);
+        //        SqlCommand cmd = new SqlCommand();
+        //        cmd.Connection = con;
+
+        //        string sql = "SELECT LOGICALREF, CODE, NAME FROM LG_001_ITEMS WHERE 1=1";
+
+        //        if (!string.IsNullOrEmpty(code))
+        //        {
+        //            sql += " AND CODE LIKE @code";
+        //            cmd.Parameters.AddWithValue("@code", "%" + code + "%");
+        //        }
+
+        //        if (!string.IsNullOrEmpty(name))
+        //        {
+        //            sql += " AND NAME LIKE @name";
+        //            cmd.Parameters.AddWithValue("@name", "%" + name + "%");
+        //        }
+
+        //        cmd.CommandText = sql;
+        //        con.Open();
+        //        using SqlDataReader dr = cmd.ExecuteReader();
+        //        while (dr.Read())
+        //        {
+        //            list.Add(new ItemViewModel
+        //            {
+        //                LOGICALREF = dr["LOGICALREF"] != DBNull.Value ? Convert.ToInt32(dr["LOGICALREF"]) : 0,
+        //                CODE = dr["CODE"].ToString(),
+        //                NAME = dr["NAME"].ToString()
+        //            });
+        //        }
+
+        //        return list;
+        //    }
+
+        //    // 🔹 Create
+        //    public static void Create(string code, string name, int UNITSETREF)
+        //    {
+        //        using SqlConnection con = new SqlConnection(connStr);
+        //        con.Open();
+        //        SqlTransaction tran = con.BeginTransaction();
+        //        try
+        //        {
+
+        //            SqlCommand cmd = new SqlCommand(@"
+        //            INSERT INTO LG_001_ITEMS (CODE, NAME, ACTIVE, CARDTYPE, CLASSTYPE, UNITSETREF)
+        //            VALUES (@c, @d, @a, @cardt, @classt,  @u); 
+        //            SELECT SCOPE_IDENTITY();", con, tran);
+
+        //            cmd.Parameters.AddWithValue("@c", code);
+        //            cmd.Parameters.AddWithValue("@d", name);
+        //            cmd.Parameters.AddWithValue("@a", 0);
+        //            cmd.Parameters.AddWithValue("@cardt", 1);
+        //            cmd.Parameters.AddWithValue("@classt", 0);
+        //            cmd.Parameters.AddWithValue("@u", UNITSETREF);
+
+        //            int itemRef = Convert.ToInt32(cmd.ExecuteScalar());
+        //            SqlCommand cmdclass = new SqlCommand(@"
+        //            INSERT INTO LG_001_ITMCLSAS (PARENTREF, CHILDREF, UPLEVEL, SITEID, RECSTATUS, ORGLOGICREF)
+        //            VALUES (@pr, @cr,  @up, @s,  @r, @o); 
+        //            SELECT SCOPE_IDENTITY();", con, tran);
+        //            cmdclass.Parameters.AddWithValue("@pr", 1);
+        //            cmdclass.Parameters.AddWithValue("@cr", itemRef);
+        //            cmdclass.Parameters.AddWithValue("@up", 0);
+        //            cmdclass.Parameters.AddWithValue("@s", 0);
+        //            cmdclass.Parameters.AddWithValue("@r", 0);
+        //            cmdclass.Parameters.AddWithValue("@o", 0);
+
+        //            cmdclass.ExecuteNonQuery();
+
+        //            SqlCommand cmdUnitLines = new SqlCommand(@"
+        //                SELECT LOGICALREF, CONVFACT1, CONVFACT2
+        //                FROM LG_001_UNITSETL
+        //                WHERE UNITSETREF = @unitSetRef
+        //                ORDER BY LOGICALREF
+        //            ", con, tran);
+
+        //            cmdUnitLines.Parameters.AddWithValue("@unitSetRef", UNITSETREF);
+
+        //            var unitLines = new List<(int UnitLineRef, double Conv1, double Conv2)>();
+
+        //            using (SqlDataReader dr = cmdUnitLines.ExecuteReader())
+        //            {
+        //                while (dr.Read())
+        //                {
+        //                    unitLines.Add((
+        //                        Convert.ToInt32(dr["LOGICALREF"]),
+        //                        Convert.ToDouble(dr["CONVFACT1"]),
+        //                        Convert.ToDouble(dr["CONVFACT2"])
+        //                    ));
+        //                }
+        //            }
+        //            int lineNr = 1;
+
+        //            foreach (var u in unitLines)
+        //            {
+        //                SqlCommand cmdItmUnit = new SqlCommand(@"
+        //                    INSERT INTO LG_001_ITMUNITA
+        //                    (ITEMREF, LINENR, UNITLINEREF, CONVFACT1, CONVFACT2)
+        //                    VALUES
+        //                    (@itemRef, @lineNr, @unitLineRef, @cf1, @cf2)
+        //                ", con, tran);
+
+        //                cmdItmUnit.Parameters.AddWithValue("@itemRef", itemRef);
+        //                cmdItmUnit.Parameters.AddWithValue("@lineNr", lineNr);
+        //                cmdItmUnit.Parameters.AddWithValue("@unitLineRef", u.UnitLineRef);
+        //                cmdItmUnit.Parameters.AddWithValue("@cf1", u.Conv1);
+        //                cmdItmUnit.Parameters.AddWithValue("@cf2", u.Conv2);
+
+        //                cmdItmUnit.ExecuteNonQuery();
+        //                lineNr++;
+
+        //            }
+        //            tran.Commit();
+
+        //        }
+        //        catch {
+        //            tran.Rollback();
+        //            throw;
+        //        }
+        //    }
+
+        //    // 🔹 Update
+        //    public static bool Update(int id, string code, string name)
+        //    {
+        //        using SqlConnection con = new SqlConnection(connStr);
+        //        SqlCommand cmd = new SqlCommand(@"
+        //            UPDATE LG_001_ITEMS
+        //            SET CODE = @code, NAME = @name
+        //            WHERE LOGICALREF = @id", con);
+
+        //        cmd.Parameters.AddWithValue("@id", id);
+        //        cmd.Parameters.AddWithValue("@code", code);
+        //        cmd.Parameters.AddWithValue("@name", name);
+
+        //        con.Open();
+        //        int rows = cmd.ExecuteNonQuery();
+        //        return rows > 0;
+        //    }
+
+        //    // 🔹 Delete
+        //    public static bool Delete(int id)
+        //    {
+        //        using SqlConnection con = new SqlConnection(connStr);
+        //        con.Open();
+        //        SqlTransaction tran = con.BeginTransaction();
+        //        try {
+
+        //            SqlCommand cmd3 = new SqlCommand("DELETE FROM LG_001_ITMUNITA WHERE ITEMREF = @id", con, tran);
+        //            cmd3.Parameters.AddWithValue("@id", id);
+        //            cmd3.ExecuteNonQuery();
+
+        //            SqlCommand cmd2 = new SqlCommand("DELETE FROM LG_001_ITCLSAS WHERE CHILDREF = @id", con, tran);
+        //            cmd2.Parameters.AddWithValue("@id", id);
+        //            cmd2.ExecuteNonQuery();
+
+
+        //            int rows = new SqlCommand("DELETE FROM LG_001_ITEMS WHERE LOGICALREF = @id", con, tran) 
+        //            { Parameters = { new SqlParameter("@id", id) } }.ExecuteNonQuery();
+        //            //rows.Parameters.AddWithValue("@id", id);
+        //            //cmd.ExecuteNonQuery();
+
+        //           // int rows = cmd.ExecuteNonQuery();
+        //            tran.Commit();
+        //            return rows > 0;
+
+        //        }
+        //        catch
+        //        {
+        //            tran.Rollback();
+        //            return false;
+        //        }
+        //
+        //}
+    } 
 }
+
+

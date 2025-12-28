@@ -1,75 +1,186 @@
 ﻿@model WebCrudApp.Models.ItemPageViewModel
 
 <h2>Malzeme işlemleri</h2>
-
-@using (Html.BeginForm())
-{
-    @Html.HiddenFor(m => m.Item.LogicalRef)
-    <div>
-        <label>Kod</label>
-        @Html.TextBoxFor(m => m.Item.Code)
+<form method="post" id="itemForm" action="javascript:void(0)">
+    <!-- GİZLİ ID -->
+    <input type="hidden" name="logicalRef" id="logicalRef" />
+    <div class="form-group">
+        <label>CODE:</label>
+        <input type="text" class="form-control" id="code" name="CODE" value="@ViewBag.Code" placeholder="000" />
+        <small id="codeHelp" class="form-text text-muted">Code must be unique, please check the list.</small>
     </div>
-
-    <div>
-        <label>Ad</label>
-        @Html.TextBoxFor(m => m.Item.Name)
+    <div class="form-group">
+        <label>NAME:</label>
+        <input type="text" class="form-control" id="name" name="NAME" placeholder="Name of the Item" value="@ViewBag.Name" />
+        <small id="nameHelp" class="form-text text-muted">Please enter the Name of Item.</small>
+        <div class="form-group">
+            @Html.DropDownListFor(
+            m => m.Item.UNITSETREF,
+                        Model.UnitSets,
+                        "-- Seçiniz --",
+                        new { id = "UNITSETREF", @class = "form-control" })
     </div>
+    <br />
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <strong>Lütfen yapacağınız işlemi seçin:</strong>
+    </div>
+</form>
 
-    <div>
-        <label>Birim Kullanım Şekli</label>
-        @Html.DropDownListFor(
-        m => m.Item.UnitUsageType,
-        new List<SelectListItem>
-        {
-        new SelectListItem { Text = "Sadece Adet", Value = "1" },
-        new SelectListItem { Text = "Adet + Koli (12)", Value = "2" }
-        },
-        "-- Seçiniz --"
-        )
-</div>
-
-
-<br />
-
-
-<button type="submit" name="action" value="create">Kaydet</button>
-<button type="submit" name="action" value="list">Listele</button>
-<button type="submit" name="action" value="/Item/Search">Bul</button>
-<button type="submit" name="action" value="update">Güncelle</button>
-<button type="submit" name="action" value="delete">Sil</button>
-
-}
-
+<button id="btnLoad" type="button" class="btn btn-primary">Listele</button>
+<button id="btnCreate" type="button" class="btn btn-outline-success">Ekle</button>
+<button id="btnSearch" type="button" class="btn btn-secondary">Bul</button>
+<button id="btnUpdate" type="button" class="btn btn-outline-warning">Güncelle</button>
+<button id="btnDelete" type="button" class="btn btn-outline-danger">Sil</button>
 <hr />
 
-<table class="table table-bordered table-striped">
-    <thead>
-        <tr>
-            <th>Code</th>
-            <th>Name</th>
-            <th>Active</th>
-            <th>Unit Set</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.ItemList)
-        {
-            <tr onclick="selectRow('@item.LogicalRef','@item.Code','@item.Name')">
-                <td>@item.Code</td>
-                <td>@item.Name</td>
-                <td>@(item.Active == 0 ? "Pasif" : "Aktif")</td>
-                <td>@item.UnitSetRef</td>
-               
-            
+<div style="max-height: 500px; overflow-y: auto; border: 1px">
+    <table class="table table-hover" border="1" style=" border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th scope="col">LOGICALREF</th>
+                <th scope="col">CODE</th>
+                <th scope="col">NAME</th>
+
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody id="itemBody">
+        </tbody>
+
+
+    </table>
+</div>
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
-    function selectRow(id, code, name) {
-        document.getElementById("Item_LogicalRef").value = id;
-        document.getElementById("Item_Code").value = code;
-        document.getElementById("Item_Name").value = name;
-    }
+     $(document).ready(function () {
+          $("#btnLoad").click();
+          $("#itemForm").on("submit", function (e) {
+            e.preventDefault();
+        });
+
+
+       });
+
+           function bindRowSelect(){
+         $("#itemTable tbody tr.rowSelect").off("click").on("click", function(){
+             $("#itemTable tbody tr.rowSelect").removeClass("table-active");
+             $(this).addClass("table-active");
+
+             $("#logicalRef").val($(this).data("id"));
+             $("#code").val($(this).data("code"));
+             $("#name").val($(this).data("name"));
+         });
+     }
+
+    //  🖱 Satır seçimi
+     $(document).on("click", ".rowSelect", function(){
+         $(".rowSelect").removeClass("table-active");
+         $(this).addClass("table-active");
+
+         $("#logicalRef").val($(this).data("id"));
+         $("#code").val($(this).data("code"));
+         $("#name").val($(this).data("name"));
+     });
+
+     //BULMA FONKSIYONU
+         $("#btnSearch").click(function(){
+         $.get("/Item/SearchPartial", {
+             code: $("#code").val(),
+             name: $("#name").val()
+         }, function(html){
+             $("#itemBody").parent().html(html); // table komple değişiyor
+             bindRowSelect(); // satır seçimi için eventleri yeniden ata
+         });
+     });
+
+
+
+         //LİSTELE BUTONU
+         $("#btnLoad").click(function(){
+         $.get("/Item/GetItemsPartial", function(html){
+             $("#itemBody").parent().html(html); // tbody’nin parent’i table
+             bindRowSelect();
+         });
+     });
+
+
+         // ➕ CREATE
+         $("#btnCreate").on("click", function (e) {
+             e.preventDefault();
+
+             $.ajax({
+                 url: '/Item/Create',
+                 type: 'POST',
+                 data: {
+                     CODE: $("#code").val(),
+                     NAME: $("#name").val(),
+                     UNITSETREF: $("#UNITSETREF").val()
+                 },
+                 success: function () {
+                     alert("Eklendi");
+                     $("#btnLoad").click(); // 🔥 otomatik yenile
+                 },
+                 error: function (err) {
+                     console.log(err);
+                     alert("Create hatası");
+                 }
+             });
+         });
+
+
+
+
+     //UPDATE
+             $("#btnUpdate").click(function () {
+        const id = $("#logicalRef").val();
+        if (!id) {
+            alert("Lütfen güncellenecek kaydı seçin");
+            return;
+        }
+
+        $.post("/Item/Update", {
+            LOGICALREF: id,
+            CODE: $("#code").val(),
+            NAME: $("#name").val()
+        })
+        .done(function () {
+            alert("Güncellendi");
+            $("#btnLoad").click();
+        })
+        .fail(function (xhr) {
+            alert("Update başarısız: " + xhr.responseText);
+        });
+    });
+         
+
+
+
+
+
+     // ➡️ DELETE
+            $(document).on("click", "#btnDelete", function () {
+
+        const id = $("#logicalRef").val();
+        if (!id) { alert("Lütfen silinecek kaydı seçin"); return; }
+        if (!confirm("Bu kaydı silmek istediğinize emin misiniz?")) return;
+        console.log("Giden ID:", id);
+
+        $.post("/Item/Delete", { id: id })
+            .done(function () {
+                alert("Silindi");
+                $("#btnLoad").click();
+                $("#logicalRef").val('');
+                $("#code").val('');
+                $("#name").val('');
+            })
+            .fail(function () {
+                alert("Silme başarısız");
+            });
+    });
+
+        
+
+
 </script>

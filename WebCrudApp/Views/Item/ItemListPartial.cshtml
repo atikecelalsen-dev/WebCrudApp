@@ -1,0 +1,19 @@
+﻿<table id="itemTable" class="table table-hover" border="1" style="border-collapse: collapse;">
+    <thead>
+        <tr>
+            <th>LOGICALREF</th>
+            <th>CODE</th>
+            <th>NAME</th>
+        </tr>
+    </thead>
+    <tbody id="itemBody">
+        @foreach (var item in Model)
+        {
+            <tr class="rowSelect" data-id="@item.LOGICALREF" data-code="@item.CODE" data-def="@item.NAME">
+                <td>@item.LOGICALREF</td>
+                <td>@item.CODE</td>
+                <td>@item.NAME</td>
+            </tr>
+        }
+    </tbody>
+</table>

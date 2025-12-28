@@ -1,13 +1,11 @@
-﻿namespace WebCrudApp.Models
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+
+namespace WebCrudApp.Models
 {
     public class ItemPageViewModel
     {
-        // Form için
         public ItemViewModel Item { get; set; }
-
-       // public ItemUnitModel Unit {{ get; set; } }
-
-        // Grid için
-        public List<ItemListModel> ItemList { get; set; }
+        public List<SelectListItem> UnitSets { get; set; }
+        public List<ItemViewModel> ItemList { get; set; }
     }
 }
