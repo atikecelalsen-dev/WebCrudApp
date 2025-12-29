@@ -1,45 +1,68 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Data.SqlClient;
 using System.Data;
 using WebCrudApp.Data;
 
 namespace WebCrudApp.Models
 {
     public class ItemRepository
-    {
+    { 
         public List<ItemViewModel> GetItems()
         {
-            var list = new List<ItemViewModel>();
-            DataTable dt = SqlHelper.Select(
-                "SELECT LOGICALREF, CODE, NAME FROM LG_001_ITEMS");
+            string sql = @"
+        SELECT i.LOGICALREF, i.CODE, i.NAME AS ITEMNAME, i.UNITSETREF, u.NAME AS UNITNAME
+        FROM LG_001_ITEMS i
+        LEFT JOIN LG_001_UNITSETF u ON i.UNITSETREF = u.LOGICALREF
+        ORDER BY i.NAME";
 
+            DataTable dt = SqlHelper.Select(sql);
+
+            var list = new List<ItemViewModel>();
             foreach (DataRow dr in dt.Rows)
             {
                 list.Add(new ItemViewModel
                 {
                     LOGICALREF = Convert.ToInt32(dr["LOGICALREF"]),
                     CODE = dr["CODE"].ToString(),
-                    NAME = dr["NAME"].ToString()
+                    NAME = dr["ITEMNAME"].ToString(),
+                    UNITSETREF = Convert.ToInt32(dr["UNITSETREF"]),
+                    UNITNAME = dr["UNITNAME"]?.ToString() ?? ""  // Burada Name dolacak
                 });
             }
+
             return list;
         }
-
-        public List<ItemViewModel> Search(string code, string name)
+        public List<ItemViewModel> Search(string code, string name, int? unitSetRef)
         {
-            string sql = "SELECT LOGICALREF, CODE, NAME FROM LG_001_ITEMS WHERE 1=1";
+           // string sql = "SELECT LOGICALREF, CODE, NAME FROM LG_001_ITEMS WHERE 1=1";
+            string sql = "SELECT i.LOGICALREF, i.CODE, i.NAME AS ITEMNAME, i.UNITSETREF," +
+                " u.NAME AS UNITNAME FROM LG_001_ITEMS i LEFT JOIN LG_001_UNITSETF " +
+                "u ON i.UNITSETREF = u.LOGICALREF WHERE 1 = 1";
+            string sql2 = "SELECT i.LOGICALREF, i.CODE AS ITEMCODE, i.NAME AS ITEMNAME, " +
+                "i.UNITSETREF, u.NAME AS UNITNAME FROM LG_001_ITEMS i " +
+                "LEFT JOIN LG_001_UNITSETF u ON i.UNITSETREF = u.LOGICALREF WHERE 1=1";
+
+
             List<SqlParameter> prms = new();
 
             if (!string.IsNullOrEmpty(code))
             {
-                sql += " AND CODE LIKE @c";
-                prms.Add(new SqlParameter("@c", "%" + code + "%"));
+                sql += " AND i.CODE LIKE @code";   
+                prms.Add(new SqlParameter("@code", "%" + code + "%"));
             }
 
             if (!string.IsNullOrEmpty(name))
             {
-                sql += " AND NAME LIKE @n";
-                prms.Add(new SqlParameter("@n", "%" + name + "%"));
+                sql += " AND i.NAME LIKE @name";  
+                prms.Add(new SqlParameter("@name", "%" + name + "%"));
             }
+
+            if (unitSetRef.HasValue && unitSetRef.Value != 0)
+            {
+                sql += " AND UNITSETREF = @u";
+                prms.Add(new SqlParameter("@u", unitSetRef.Value));
+            }
+
 
             DataTable dt = SqlHelper.Select(sql, prms.ToArray());
             var list = new List<ItemViewModel>();
@@ -50,7 +73,9 @@ namespace WebCrudApp.Models
                 {
                     LOGICALREF = Convert.ToInt32(dr["LOGICALREF"]),
                     CODE = dr["CODE"].ToString(),
-                    NAME = dr["NAME"].ToString()
+                    NAME = dr["ITEMNAME"].ToString(),
+                    UNITSETREF = Convert.ToInt32(dr["UNITSETREF"]),
+                    UNITNAME = dr["UNITNAME"]?.ToString() ?? ""
                 });
             }
             return list;

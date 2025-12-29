@@ -11,6 +11,7 @@ namespace WebCrudApp.Models
         public string Code { get; set; }
         public string Name { get; set; }
 
+
         private static string cs =
             "Data Source=Atike;Initial Catalog=GODENEME;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;";
 

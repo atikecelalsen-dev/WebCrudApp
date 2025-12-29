@@ -33,6 +33,21 @@
                         <a class="nav-link text-dark" asp-area="" asp-controller="Item" asp-action="Index">Items</a>
                     </li>
                 </ul>
+
+                <ul class="navbar-nav flex-row gap-3 ms-auto"  
+                style="list-style:none;  display:flex;  gap:10px; margin:0; padding:0;">
+                    @if (User.Identity != null && User.Identity.IsAuthenticated)
+                    {
+                        <li>Hoşgeldin, @User.Identity.Name!</li>
+                        <li><a href="/Account/Logout">Çıkış Yap</a></li>
+                    }
+                    else
+                    {
+                        <li>Giriş yapılmamış!</li>
+                        <li><a href="/Account/Login">Giriş Yap</a></li>
+                    }
+                    </ul>
+
             </div>
         </nav>
 

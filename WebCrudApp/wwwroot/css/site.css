@@ -22,14 +22,26 @@ body {
 
 
 }
+
+
 .carousel-item {
-    height: 400px;
+    height: 500px;
+    width: 1000px;
 }
 
     .carousel-item img {
         height: 100%;
         object-fit: cover;
     }
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    background-color: rgb(0, 0, 0);
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    filter: invert(1);
+    transition: all 0.3s ease;
+}
 
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
   color: var(--bs-secondary-color);

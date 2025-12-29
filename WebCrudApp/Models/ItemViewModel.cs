@@ -23,8 +23,10 @@ namespace WebCrudApp.Models
         public int CLASSTYPE { get; set; }
         public int UNITSETREF { get; set; }
 
+        public string UNITNAME { get; set; }
 
-   
+
+
     } 
 }
 

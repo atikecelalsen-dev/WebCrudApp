@@ -1,15 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using WebCrudApp.Models;
 
 
-//[Route("[controller]/[action]")]
+[Authorize]
 public class ItemController : Controller
 {
     ItemRepository repo = new ItemRepository();
-
     public IActionResult Index()
     {
         return View(new ItemPageViewModel
@@ -17,6 +17,7 @@ public class ItemController : Controller
             Item = new ItemViewModel(),
             UnitSets = UnitSetViewModel.GetUnitSetDropdown(),
             ItemList = repo.GetItems()
+
         });
     }
 
@@ -30,8 +31,10 @@ public class ItemController : Controller
     public IActionResult GetItemsPartial()
         => PartialView("ItemListPartial", repo.GetItems());
 
-    public IActionResult SearchPartial(string code, string name)
-        => PartialView("ItemListPartial", repo.Search(code, name));
+    public IActionResult SearchPartial(string code, string name, int? unitSetRef)
+    {
+        return PartialView("ItemListPartial", repo.Search(code, name, unitSetRef));
+    }
 
     [HttpPost]
     public IActionResult Update(int LOGICALREF, string CODE, string NAME, int UNITSETREF)

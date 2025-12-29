@@ -13,17 +13,18 @@
         <label>NAME:</label>
         <input type="text" class="form-control" id="name" name="NAME" placeholder="Name of the Item" value="@ViewBag.Name" />
         <small id="nameHelp" class="form-text text-muted">Please enter the Name of Item.</small>
-        <div class="form-group">
-            @Html.DropDownListFor(
-            m => m.Item.UNITSETREF,
-                        Model.UnitSets,
-                        "-- Seçiniz --",
-                        new { id = "UNITSETREF", @class = "form-control" })
+        
+    <div class="form-group">
+        <label>UNIT SET:</label>
+        @Html.DropDownListFor(
+        m => m.Item.UNITSETREF,
+                    Model.UnitSets,
+                    "-- Seçiniz --",
+                    new { id = "UNITSETREF", @class = "form-control" })
+
     </div>
     <br />
-    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-        <strong>Lütfen yapacağınız işlemi seçin:</strong>
-    </div>
+    
 </form>
 
 <button id="btnLoad" type="button" class="btn btn-primary">Listele</button>
@@ -86,14 +87,18 @@
 
      //BULMA FONKSIYONU
          $("#btnSearch").click(function(){
-         $.get("/Item/SearchPartial", {
-             code: $("#code").val(),
-             name: $("#name").val(),
-             const unitSetRef = $("#UNITSETREF").val();
-         }, function(html){
-             $("#itemBody").parent().html(html); // table komple değişiyor
-             bindRowSelect(); // satır seçimi için eventleri yeniden ata
-         });
+        const code = $("#code").val();
+        const name = $("#name").val();
+        const unitSetRef = $("#UNITSETREF").val(); // DropDown’dan değer al
+
+    $.get("/Item/SearchPartial", {
+        code: code,
+        name: name,
+        unitSetRef: unitSetRef   // backend’e gönder
+    }, function(html){
+        $("#itemBody").parent().html(html); // table komple değişiyor
+        bindRowSelect(); // satır seçimi için eventleri yeniden ata
+    });
      });
 
 
