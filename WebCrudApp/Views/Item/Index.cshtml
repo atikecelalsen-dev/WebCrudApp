@@ -88,7 +88,8 @@
          $("#btnSearch").click(function(){
          $.get("/Item/SearchPartial", {
              code: $("#code").val(),
-             name: $("#name").val()
+             name: $("#name").val(),
+             const unitSetRef = $("#UNITSETREF").val();
          }, function(html){
              $("#itemBody").parent().html(html); // table komple değişiyor
              bindRowSelect(); // satır seçimi için eventleri yeniden ata
@@ -139,11 +140,17 @@
             alert("Lütfen güncellenecek kaydı seçin");
             return;
         }
+        const unitSetRef = $("#UNITSETREF").val();  // burası HTML DropDown ID ile aynı olmalı
+            if (!unitSetRef) {
+                alert("Lütfen bir birim set seçin");
+            return;
+        }
 
         $.post("/Item/Update", {
             LOGICALREF: id,
             CODE: $("#code").val(),
-            NAME: $("#name").val()
+            NAME: $("#name").val(),
+            UNITSETREF: unitSetRef
         })
         .done(function () {
             alert("Güncellendi");

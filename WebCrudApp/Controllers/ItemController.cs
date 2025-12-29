@@ -34,9 +34,9 @@ public class ItemController : Controller
         => PartialView("ItemListPartial", repo.Search(code, name));
 
     [HttpPost]
-    public IActionResult Update(int LOGICALREF, string CODE, string NAME)
+    public IActionResult Update(int LOGICALREF, string CODE, string NAME, int UNITSETREF)
     {
-        bool updated = ItemRepository.Update(LOGICALREF, CODE, NAME);
+        bool updated = ItemRepository.Update(LOGICALREF, CODE, NAME, UNITSETREF);
 
         if (updated)
             return Ok();

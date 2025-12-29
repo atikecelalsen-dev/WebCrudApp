@@ -113,34 +113,71 @@ namespace WebCrudApp.Models
             }
         }
 
-      
-        public static bool Update(int id, string code, string name)
+
+        public static bool Update(int itemRef, string code, string name, int unitSetRef)
         {
             using SqlConnection con = new SqlConnection(
                 "Data Source=Atike;Initial Catalog=GODENEME;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;");
             con.Open();
-            new SqlParameter("@i", id);
 
-            SqlCommand cmd = new SqlCommand(@"
-        UPDATE LG_001_ITEMS
-        SET 
-            CODE = @code,
-            NAME = @name,
-            ACTIVE = 0,
-            CARDTYPE = 1
-        WHERE LOGICALREF = @id", con);
-
-            cmd.Parameters.AddWithValue("@id", id);
-            cmd.Parameters.AddWithValue("@code", code);
-            cmd.Parameters.AddWithValue("@name", name);
-
+            using SqlTransaction tran = con.BeginTransaction();
             try
             {
-                int rows = cmd.ExecuteNonQuery();
-                return rows > 0;
+                // 1. ITEMS tablosunu güncelle
+                int rows = SqlHelper.Execute(@"
+            UPDATE LG_001_ITEMS
+            SET CODE = @code,
+                NAME = @name,
+                ACTIVE = 0,
+                CARDTYPE = 1,
+                UNITSETREF = @unitSetRef
+            WHERE LOGICALREF = @id",
+                    con, tran,
+                    new SqlParameter("@id", itemRef),
+                    new SqlParameter("@code", code),
+                    new SqlParameter("@name", name),
+                    new SqlParameter("@unitSetRef", unitSetRef)
+                );
+
+                if (rows == 0)
+                {
+                    tran.Rollback();
+                    return false;
+                }
+
+                // 2. Önceki ITMUNITA satırlarını sil
+                SqlHelper.Execute("DELETE FROM LG_001_ITMUNITA WHERE ITEMREF=@i",
+                    con, tran,
+                    new SqlParameter("@i", itemRef));
+
+                // 3. UNITSETL'den birimleri al
+                DataTable unitLines = SqlHelper.Select(
+                    "SELECT LOGICALREF, CONVFACT1, CONVFACT2 FROM LG_001_UNITSETL WHERE UNITSETREF=@u",
+                    new SqlParameter("@u", unitSetRef));
+
+                // 4. Yeni ITMUNITA satırlarını ekle
+                int lineNr = 1;
+                foreach (DataRow u in unitLines.Rows)
+                {
+                    SqlHelper.Execute(@"
+                INSERT INTO LG_001_ITMUNITA
+                (ITEMREF, LINENR, UNITLINEREF, CONVFACT1, CONVFACT2)
+                VALUES (@i,@l,@ul,@c1,@c2)",
+                        con, tran,
+                        new SqlParameter("@i", itemRef),
+                        new SqlParameter("@l", lineNr++),
+                        new SqlParameter("@ul", u["LOGICALREF"]),
+                        new SqlParameter("@c1", u["CONVFACT1"]),
+                        new SqlParameter("@c2", u["CONVFACT2"])
+                    );
+                }
+
+                tran.Commit();
+                return true;
             }
-            catch (SqlException ex)
+            catch (Exception ex)
             {
+                tran.Rollback();
                 Console.WriteLine("SQL ERROR: " + ex.Message);
                 throw;
             }
