@@ -155,17 +155,12 @@
     });
          
 
-
-
-
-
      // ➡️ DELETE
             $(document).on("click", "#btnDelete", function () {
 
         const id = $("#logicalRef").val();
         if (!id) { alert("Lütfen silinecek kaydı seçin"); return; }
         if (!confirm("Bu kaydı silmek istediğinize emin misiniz?")) return;
-        console.log("Giden ID:", id);
 
         $.post("/Item/Delete", { id: id })
             .done(function () {

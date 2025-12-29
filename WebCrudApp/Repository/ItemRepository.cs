@@ -113,44 +113,7 @@ namespace WebCrudApp.Models
             }
         }
 
-        //  public bool Update(int id, string code, string name)
-        //{
-        //      return SqlHelper.Execute(
-        //          "UPDATE LG_001_ITEMS SET CODE=@c, NAME=@n WHERE LOGICALREF=@i",
-        //          new SqlConnection(), null,
-        //          new SqlParameter("@c", code),
-        //          new SqlParameter("@n", name),
-        //          new SqlParameter("@i", id)) > 0;
-        //  }
-        //public static bool Update(int id, string code, string name)
-        //{
-        //    using SqlConnection con = new SqlConnection(
-        //        "Data Source=Atike;Initial Catalog=GODENEME;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;");
-        //    con.Open();
-        //    SqlTransaction tran = con.BeginTransaction();
-        //    new SqlParameter("@i", id);
-
-        //    try
-        //    {
-
-        //        int rows = SqlHelper.Execute("UPDATE LG_001_ITEMS SET CODE = @code, " +
-        //            "NAME = @name, ACTIVE = 0, CARDTYPE = 1 " +
-        //            "WHERE LOGICALREF = @i", con, tran);
-
-        //        tran.Commit();
-        //        return rows > 0;
-        //    }
-        //    catch
-        //    {
-        //       // Console.WriteLine("SQL ERROR: " + ex.Message);
-        //        tran.Rollback();
-        //        return false;
-
-
-
-        //    }
-        //}
-
+      
         public static bool Update(int id, string code, string name)
         {
             using SqlConnection con = new SqlConnection(
