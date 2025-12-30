@@ -36,20 +36,11 @@
 
 <div style="max-height: 500px; overflow-y: auto; border: 1px">
     <table class="table table-hover" border="1" style=" border-collapse: collapse;">
-        <thead>
-            <tr>
-                <th scope="col">LOGICALREF</th>
-                <th scope="col">CODE</th>
-                <th scope="col">NAME</th>
-
-            </tr>
-        </thead>
         <tbody id="itemBody">
         </tbody>
-
-
     </table>
 </div>
+
 
 <!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -74,7 +65,7 @@
              $("#name").val($(this).data("name"));
          });
      }
-
+    
     //  🖱 Satır seçimi
      $(document).on("click", ".rowSelect", function(){
          $(".rowSelect").removeClass("table-active");

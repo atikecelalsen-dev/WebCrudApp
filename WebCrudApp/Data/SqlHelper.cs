@@ -49,5 +49,7 @@ namespace WebCrudApp.Data
 
             return cmd.ExecuteScalar();
         }
+
+       
     }
 }

@@ -5,6 +5,7 @@
             <th>CODE</th>
             <th>NAME</th>
             <th>Birim Seti</th>
+            <th>   </th>
             
 
         </tr>
@@ -16,8 +17,12 @@
                 <td>@item.LOGICALREF</td>
                 <td>@item.CODE</td>
                 <td>@item.NAME</td>
-                
                 <td>@item.UNITNAME</td>
+                <td>
+                    <a href="@Url.Action("Index", "ItemDetails", new { logicalRef = item.LOGICALREF })">
+                        Düzenle
+                    </a>
+                </td>
             </tr>
         }
     </tbody>
