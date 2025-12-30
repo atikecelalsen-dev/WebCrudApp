@@ -27,8 +27,8 @@
         <thead>
             <tr>
                 <th>ITEM NAME</th>
-                @* <th>LOGICALREF</th>
-                <th>ITEMREF</th> *@
+                <th>LOGICALREF</th>
+                <th>ITEMREF</th> 
                 <th>UNITLINEREF</th>
                 <th>UNITNAME</th>
                 <th>BARCODE</th>
@@ -40,23 +40,48 @@
         <tbody id="itemBody">
             @foreach (var detail in Model.UnitDetails)
             {
-                <tr>
+                <tr data-itemref="@detail.ITEMREF" data-unitlineref="@detail.UNITLINEREF">
                     <td>@detail.ITEMNAME</td>
-                   @* <td>@detail.LOGICALREF</td>
-                    <td>@detail.ITEMREF</td> *@
+                    <td>@detail.LOGICALREF</td>
+                    <td>@detail.ITEMREF</td>
                     <td>@detail.UNITLINEREF</td>
                     <td>@detail.UNITNAME</td>
-                    <td>@detail.BARCODE</td>
-                    <td>@detail.PURCHASEPRICE</td>
-                    <td>@detail.SALEPRICE</td>
-                   
+                    <td contenteditable="true" class="editable" data-field="BARCODE">@detail.BARCODE</td>
+                    <td contenteditable="true" class="editable" data-field="PURCHASEPRICE">@detail.PURCHASEPRICE</td>
+                    <td contenteditable="true" class="editable" data-field="SALEPRICE">@detail.SALEPRICE</td>
                 </tr>
             }
         </tbody>
     </table>
 </div>
 
+<button type="button" onclick="saveChanges()">Kaydet</button>
 
+<script>
+    function saveChanges() {
+        var rows = document.querySelectorAll("#itemBody tr");
+        var data = [];
+
+        rows.forEach(row => {
+            var obj = {
+                ITEMREF: row.getAttribute("data-itemref"),
+                UNITLINEREF: row.getAttribute("data-unitlineref"),
+                BARCODE: row.querySelector('[data-field="BARCODE"]').innerText,
+                PURCHASEPRICE: row.querySelector('[data-field="PURCHASEPRICE"]').innerText,
+                SALEPRICE: row.querySelector('[data-field="SALEPRICE"]').innerText
+            };
+            data.push(obj);
+        });
+
+        fetch('/ItemDetails/UpdateItems', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+        .then(res => res.ok ? alert("Güncellendi") : alert("Hata"))
+        .catch(err => alert("Hata: " + err));
+    }
+</script>
 
 @* <!-- BİRİMLER (ITMUNITA) -->
 <div class="card mb-3">

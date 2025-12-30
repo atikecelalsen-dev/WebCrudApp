@@ -36,18 +36,7 @@ namespace WebCrudApp.Repository
 
         public List<ItemUnitDetailModel> GetItemUnitDetails(int logicalRef)
         {
-          
-            string sql3 = @"SELECT 
-            i.NAME AS ITEMNAME , u.LOGICALREF, u.ITEMREF, u.UNITLINEREF,
-            ul.NAME AS UNITNAME, b.BARCODE, p.PRICE AS SALEPRICE
-        FROM LG_001_ITMUNITA u
-        LEFT JOIN LG_001_ITEMS i ON i.LOGICALREF = u.ITEMREF
-        LEFT JOIN LG_001_UNITSETL ul ON u.UNITLINEREF = ul.LOGICALREF
-        LEFT JOIN LG_001_UNITBARCODE b ON b.ITEMREF = u.ITEMREF AND b.ITMUNITAREF = u.LOGICALREF
-        LEFT JOIN LG_001_PRCLIST p ON p.CARDREF = u.ITEMREF AND p.UOMREF = u.UNITLINEREF AND p.PTYPE = 2 
-        WHERE u.ITEMREF = @id";
-
-            string sql4 = @"SELECT 
+            string sql = @"SELECT 
                 i.NAME AS ITEMNAME, u.LOGICALREF,  u.ITEMREF, u.UNITLINEREF, 
                 ul.NAME AS UNITNAME, b.BARCODE, ps.PRICE AS SALEPRICE, pp.PRICE AS PURCHASEPRICE
             FROM LG_001_ITMUNITA u
@@ -58,8 +47,7 @@ namespace WebCrudApp.Repository
             LEFT JOIN LG_001_PRCLIST pp ON pp.CARDREF = u.ITEMREF AND pp.UOMREF = u.UNITLINEREF AND pp.PTYPE = 1
             WHERE u.ITEMREF = @id";
 
-            //--PTYPE = 2 örnek satış fiyatı
-            DataTable dt = SqlHelper.Select(sql4, new SqlParameter("@id", logicalRef));
+            DataTable dt = SqlHelper.Select(sql, new SqlParameter("@id", logicalRef));
 
             List<ItemUnitDetailModel> list = new List<ItemUnitDetailModel>();
 
@@ -67,9 +55,9 @@ namespace WebCrudApp.Repository
             {
                 list.Add(new ItemUnitDetailModel
                 {
-                    //LOGICALREF = Convert.ToInt32(dr["LOGICALREF"]),
+                    LOGICALREF = Convert.ToInt32(dr["LOGICALREF"]),
                     ITEMNAME = dr["ITEMNAME"]?.ToString() ?? "",
-                    //ITEMREF = Convert.ToInt32(dr["ITEMREF"]),
+                    ITEMREF = Convert.ToInt32(dr["ITEMREF"]),
                     UNITLINEREF = Convert.ToInt32(dr["UNITLINEREF"]),
                     UNITNAME = dr["UNITNAME"]?.ToString() ?? "",
                     BARCODE = dr["BARCODE"]?.ToString() ?? "",
