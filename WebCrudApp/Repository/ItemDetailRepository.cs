@@ -133,8 +133,8 @@ namespace WebCrudApp.Repository
                             ELSE
                             BEGIN
                                 INSERT INTO LG_001_PRCLIST
-                                (CARDREF, UOMREF, PTYPE, PRICE, CURRENCY, CODE)
-                                VALUES (@cardref, @uomref, 1, @price, 160, @code)
+                                (CARDREF, UOMREF, PTYPE, PRICE, CURRENCY, CODE, ACTIVE)
+                                VALUES (@cardref, @uomref, 1, @price, 160, @code, 0)
                             END";
 
                         SqlHelper.Execute(sqlPurchase, conn, tran,
@@ -167,8 +167,8 @@ namespace WebCrudApp.Repository
                             ELSE
                             BEGIN
                                 INSERT INTO LG_001_PRCLIST
-                                (CARDREF, UOMREF, PTYPE, PRICE, CURRENCY, CODE)
-                                VALUES (@cardref, @uomref, 2, @price, 160, @code)
+                                (CARDREF, UOMREF, PTYPE, PRICE, CURRENCY, CODE, ACTIVE)
+                                VALUES (@cardref, @uomref, 2, @price, 160, @code, 0 )
                             END";
 
                         SqlHelper.Execute(sqlSale, conn, tran,
