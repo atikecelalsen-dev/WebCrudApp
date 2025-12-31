@@ -40,15 +40,20 @@
         <tbody id="itemBody">
             @foreach (var detail in Model.UnitDetails)
             {
-                <tr data-itemref="@detail.ITEMREF" data-unitlineref="@detail.UNITLINEREF">
+                <tr data-itemref="@detail.ITEMREF"
+                    data-unitlineref="@detail.UNITLINEREF"
+                    data-itmunitaref="@(detail.ITMUNITAREF ?? 0)">
+
                     <td>@detail.ITEMNAME</td>
                     <td>@detail.LOGICALREF</td>
                     <td>@detail.ITEMREF</td>
                     <td>@detail.UNITLINEREF</td>
                     <td>@detail.UNITNAME</td>
+                    
                     <td contenteditable="true" class="editable" data-field="BARCODE">@detail.BARCODE</td>
                     <td contenteditable="true" class="editable" data-field="PURCHASEPRICE">@detail.PURCHASEPRICE</td>
                     <td contenteditable="true" class="editable" data-field="SALEPRICE">@detail.SALEPRICE</td>
+                   <td>@detail.ITMUNITAREF</td>
                 </tr>
             }
         </tbody>
@@ -61,14 +66,23 @@
     function saveChanges() {
         var rows = document.querySelectorAll("#itemBody tr");
         var data = [];
-
+        
         rows.forEach(row => {
             var obj = {
-                ITEMREF: row.getAttribute("data-itemref"),
-                UNITLINEREF: row.getAttribute("data-unitlineref"),
-                BARCODE: row.querySelector('[data-field="BARCODE"]').innerText,
-                PURCHASEPRICE: row.querySelector('[data-field="PURCHASEPRICE"]').innerText,
-                SALEPRICE: row.querySelector('[data-field="SALEPRICE"]').innerText
+                ITEMREF: parseInt(row.dataset.itemref),
+                ITMUNITAREF: Number(row.dataset.itmunitaref) || 0,
+                    UNITLINEREF: parseInt(row.dataset.unitlineref),
+                    BARCODE: row.querySelector('[data-field="BARCODE"]').innerText.trim(),
+                    PURCHASEPRICE: parseFloat(row.querySelector('[data-field="PURCHASEPRICE"]').innerText) || 0,
+                    SALEPRICE: parseFloat(row.querySelector('[data-field="SALEPRICE"]').innerText) || 0
+
+
+                // ITEMREF: row.getAttribute("data-itemref"),
+                // ITMUNITAREF: row.getAttribute("data-itmunitaref"),
+                // UNITLINEREF: row.getAttribute("data-unitlineref"),
+                // BARCODE: row.querySelector('[data-field="BARCODE"]').innerText,
+                // PURCHASEPRICE: row.querySelector('[data-field="PURCHASEPRICE"]').innerText,
+                // SALEPRICE: row.querySelector('[data-field="SALEPRICE"]').innerText
             };
             data.push(obj);
         });

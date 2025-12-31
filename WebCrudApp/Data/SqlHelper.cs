@@ -1,11 +1,11 @@
-﻿using Microsoft.Data.SqlClient;
-using System.Data;
+﻿using System.Data;
+using Microsoft.Data.SqlClient;
 
 namespace WebCrudApp.Data
 {
     public static class SqlHelper
     {
-        private static readonly string connStr =
+        public static readonly string connStr =
             "Data Source=Atike;Initial Catalog=GODENEME;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;";
 
         public static DataTable Select(string sql, params SqlParameter[] parameters)
@@ -30,6 +30,7 @@ namespace WebCrudApp.Data
 
             return cmd.ExecuteNonQuery();
         }
+
         public static int Execute(string sql, params SqlParameter[] parameters)
         {
             using SqlConnection con = new SqlConnection(connStr);
@@ -50,6 +51,19 @@ namespace WebCrudApp.Data
             return cmd.ExecuteScalar();
         }
 
-       
+        public static object ExecuteScalar(string sql, params SqlParameter[] parameters)
+        {
+            using (SqlConnection conn = new SqlConnection(connStr))
+            using (SqlCommand cmd = new SqlCommand(sql, conn))
+            {
+                if (parameters != null)
+                    cmd.Parameters.AddRange(parameters);
+
+                conn.Open();
+                return cmd.ExecuteScalar();
+            }
+        }
+
+
     }
 }

@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
-using WebCrudApp.Models;
 using WebCrudApp.Models;
 
 [Authorize]

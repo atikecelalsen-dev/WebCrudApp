@@ -37,7 +37,7 @@ namespace WebCrudApp.Repository
         public List<ItemUnitDetailModel> GetItemUnitDetails(int logicalRef)
         {
             string sql = @"SELECT 
-                i.NAME AS ITEMNAME, u.LOGICALREF,  u.ITEMREF, u.UNITLINEREF, 
+                i.NAME AS ITEMNAME, u.LOGICALREF AS ITMUNITAREF ,u.ITEMREF, u.UNITLINEREF,
                 ul.NAME AS UNITNAME, b.BARCODE, ps.PRICE AS SALEPRICE, pp.PRICE AS PURCHASEPRICE
             FROM LG_001_ITMUNITA u
             LEFT JOIN LG_001_ITEMS i ON i.LOGICALREF = u.ITEMREF
@@ -55,9 +55,10 @@ namespace WebCrudApp.Repository
             {
                 list.Add(new ItemUnitDetailModel
                 {
-                    LOGICALREF = Convert.ToInt32(dr["LOGICALREF"]),
+                    LOGICALREF = Convert.ToInt32(dr["ITMUNITAREF"]),
                     ITEMNAME = dr["ITEMNAME"]?.ToString() ?? "",
                     ITEMREF = Convert.ToInt32(dr["ITEMREF"]),
+                    ITMUNITAREF = Convert.ToInt32(dr["ITMUNITAREF"]),
                     UNITLINEREF = Convert.ToInt32(dr["UNITLINEREF"]),
                     UNITNAME = dr["UNITNAME"]?.ToString() ?? "",
                     BARCODE = dr["BARCODE"]?.ToString() ?? "",
@@ -68,5 +69,10 @@ namespace WebCrudApp.Repository
 
             return list;
         }
+
+
+
+
+
     }
 }
