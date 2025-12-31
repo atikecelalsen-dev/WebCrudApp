@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using System.Data;
 using WebCrudApp.Data;
 using WebCrudApp.Models;
@@ -69,6 +70,130 @@ namespace WebCrudApp.Repository
 
             return list;
         }
+
+        [HttpPost]
+        public void UpdateItems(List<ItemUnitDetailModel> items)
+        {
+            using SqlConnection conn = new SqlConnection(SqlHelper.connStr);
+            conn.Open();
+            int lineNr = 1;
+
+            foreach (var item in items)
+            {
+                using var tran = conn.BeginTransaction();
+                try
+                {
+                    // ===== BARCODE =====
+                    if (!string.IsNullOrEmpty(item.BARCODE))
+                    {
+                        string sqlBarcode = @"
+                            IF EXISTS(SELECT 1 FROM LG_001_UNITBARCODE 
+                                      WHERE ITEMREF=@itemref AND ITMUNITAREF=@itmunitaref)
+                            BEGIN
+                                UPDATE LG_001_UNITBARCODE
+                                SET BARCODE=@barcode
+                                WHERE ITEMREF=@itemref AND UNITLINEREF=@unitlineref
+                            END
+                            ELSE
+                            BEGIN
+                                INSERT INTO LG_001_UNITBARCODE
+                                (ITEMREF, ITMUNITAREF, UNITLINEREF, BARCODE, LINENR)
+                                VALUES (@itemref, @itmunitaref, @unitlineref, @barcode, @linenr)
+                            END";
+
+                        SqlHelper.Execute(sqlBarcode, conn, tran,
+                            new SqlParameter("@itemref", item.ITEMREF),
+                            new SqlParameter("@itmunitaref", item.ITMUNITAREF),
+                            new SqlParameter("@unitlineref", item.UNITLINEREF),
+                            new SqlParameter("@barcode", item.BARCODE),
+                            new SqlParameter("@linenr", lineNr++));
+                    }
+
+                    // ===== PURCHASE PRICE (PTYPE=1) =====
+                    if (item.PURCHASEPRICE.HasValue && item.PURCHASEPRICE.Value > 0)
+                    {
+                        string sqlPurchase = @"
+                            DECLARE @code NVARCHAR(20);
+
+                            -- Satış fiyatı code'unu al
+                            SELECT TOP 1 @code = CODE 
+                            FROM LG_001_PRCLIST WITH (NOLOCK)
+                            WHERE CARDREF=@cardref AND UOMREF=@uomref AND PTYPE=2;
+
+                            IF @code IS NULL
+                                SET @code = 'UOM' + CAST(ISNULL((SELECT MAX(CAST(SUBSTRING(CODE,4,10) AS INT)) 
+                                                                 FROM LG_001_PRCLIST WITH (NOLOCK) WHERE CODE LIKE 'UOM%'),0)+1 AS NVARCHAR(10));
+
+                            IF EXISTS(SELECT 1 FROM LG_001_PRCLIST WHERE CARDREF=@cardref AND UOMREF=@uomref AND PTYPE=1)
+                            BEGIN
+                                UPDATE LG_001_PRCLIST
+                                SET PRICE=@price
+                                WHERE CARDREF=@cardref AND UOMREF=@uomref AND PTYPE=1
+                            END
+                            ELSE
+                            BEGIN
+                                INSERT INTO LG_001_PRCLIST
+                                (CARDREF, UOMREF, PTYPE, PRICE, CURRENCY, CODE)
+                                VALUES (@cardref, @uomref, 1, @price, 160, @code)
+                            END";
+
+                        SqlHelper.Execute(sqlPurchase, conn, tran,
+                            new SqlParameter("@cardref", item.ITEMREF),
+                            new SqlParameter("@uomref", item.UNITLINEREF),
+                            new SqlParameter("@price", item.PURCHASEPRICE));
+                    }
+
+                    // ===== SALE PRICE (PTYPE=2) =====
+                    if (item.SALEPRICE.HasValue && item.SALEPRICE.Value > 0)
+                    {
+                        string sqlSale = @"
+                            DECLARE @code NVARCHAR(20);
+
+                            -- Alış fiyatı code'unu al
+                            SELECT TOP 1 @code = CODE 
+                            FROM LG_001_PRCLIST WITH (NOLOCK)
+                            WHERE CARDREF=@cardref AND UOMREF=@uomref AND PTYPE=1;
+
+                            IF @code IS NULL
+                                SET @code = 'UOM' + CAST(ISNULL((SELECT MAX(CAST(SUBSTRING(CODE,4,10) AS INT)) 
+                                                                 FROM LG_001_PRCLIST WITH (NOLOCK) WHERE CODE LIKE 'UOM%'),0)+1 AS NVARCHAR(10));
+
+                            IF EXISTS(SELECT 1 FROM LG_001_PRCLIST WHERE CARDREF=@cardref AND UOMREF=@uomref AND PTYPE=2)
+                            BEGIN
+                                UPDATE LG_001_PRCLIST
+                                SET PRICE=@price
+                                WHERE CARDREF=@cardref AND UOMREF=@uomref AND PTYPE=2
+                            END
+                            ELSE
+                            BEGIN
+                                INSERT INTO LG_001_PRCLIST
+                                (CARDREF, UOMREF, PTYPE, PRICE, CURRENCY, CODE)
+                                VALUES (@cardref, @uomref, 2, @price, 160, @code)
+                            END";
+
+                        SqlHelper.Execute(sqlSale, conn, tran,
+                            new SqlParameter("@cardref", item.ITEMREF),
+                            new SqlParameter("@uomref", item.UNITLINEREF),
+                            new SqlParameter("@price", item.SALEPRICE));
+                    }
+
+                    tran.Commit();
+                }
+                catch
+                {
+                    tran.Rollback();
+                    throw;
+                }
+            }
+
+            
+        }
+
+
+
+
+
+
 
 
 

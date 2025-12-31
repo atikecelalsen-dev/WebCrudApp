@@ -9,6 +9,7 @@
         public int? UNITLINEREF { get; set; }
         public string? UNITNAME { get; set; }
 
+        public string? CODE { get; set; }
         public string? BARCODE { get; set; }
 
         public decimal? PURCHASEPRICE { get; set; }
