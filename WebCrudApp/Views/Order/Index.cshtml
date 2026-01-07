@@ -1,0 +1,49 @@
+﻿@model List<WebCrudApp.Models.OrderHeaderModel>
+
+@{
+    ViewBag.Title = "Siparişler";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Siparişler</h2>
+        <a href="/Order/Create" class="btn btn-primary btn-lg">Yeni Sipariş</a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover" border="1" style="border-collapse: collapse;>
+            <thead class="table-dark">
+                <tr>
+                    <th>Sipariş No</th>
+                    <th>Tarih</th>
+                    <th>Müşteri</th>
+                    <th>Net Tutar</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.FICHENO</td>
+                            <td>@item.DATE_.ToString("yyyy-MM-dd")</td>
+                            <td>@item.CLIENTREF</td>
+                            <td>@item.NETTOTAL.ToString("N2")</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="4" class="text-center">Hiç sipariş yok</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
