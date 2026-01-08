@@ -17,6 +17,8 @@ namespace WebCrudApp.Models
             public int TIME_ { get; set; }
             public int CLIENTREF { get; set; }
 
+            public string CLIENTNAME { get; set; }
+
             public decimal GROSSTOTAL { get; set; }
             public decimal TOTALVAT { get; set; }
             public decimal NETTOTAL { get; set; }

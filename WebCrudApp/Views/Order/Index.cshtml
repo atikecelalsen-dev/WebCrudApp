@@ -9,7 +9,7 @@
 <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Siparişler</h2>
-        <a href="/Order/Create" class="btn btn-primary btn-lg">Yeni Sipariş</a>
+        <a href="/Order/Create" class="btn btn-primary btn">Yeni Sipariş</a>
     </div>
 
     <div class="table-responsive">
@@ -27,10 +27,12 @@
                 {
                     foreach (var item in Model)
                     {
-                        <tr>
+                        
+                        <tr style="cursor:pointer"
+                            onclick="location.href='/Order/Edit/@item.LOGICALREF'">
                             <td>@item.FICHENO</td>
                             <td>@item.DATE_.ToString("yyyy-MM-dd")</td>
-                            <td>@item.CLIENTREF</td>
+                            <td>@item.CLIENTNAME</td>
                             <td>@item.NETTOTAL.ToString("N2")</td>
                         </tr>
                     }

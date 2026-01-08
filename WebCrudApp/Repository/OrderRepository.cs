@@ -31,28 +31,44 @@ public class OrderRepository : IOrderRepository
         return list;
     }
 
-    // Ürün dropdown
-    public List<SelectListItem> GetItems()
+    public List<OrderItemViewModel> GetItems()
     {
-        var list = new List<SelectListItem>();
+        var list = new List<OrderItemViewModel>();
         using var con = new SqlConnection(_cs);
         con.Open();
+
         using var cmd = new SqlCommand(@"
-                SELECT LOGICALREF, NAME
-                FROM LG_001_ITEMS
-                ORDER BY LOGICALREF
-            ", con);
+        SELECT
+            i.LOGICALREF,
+            i.CODE AS MalzemeKodu,
+            i.NAME AS MalzemeAdi,
+            g.ONHAND AS FiiliStok,
+            (g.ONHAND - g.RESERVED) AS GercekStok,
+            (g.ONHAND - g.RESERVED - g.ACTSORDER) AS SevkedilebilirStok
+        FROM LG_001_ITEMS i
+        JOIN LV_001_01_GNTOTST g
+            ON i.LOGICALREF = g.STOCKREF
+        WHERE g.INVENNO = 0
+        ORDER BY i.LOGICALREF
+    ", con);
+
         using var dr = cmd.ExecuteReader();
         while (dr.Read())
         {
-            list.Add(new SelectListItem
+            list.Add(new OrderItemViewModel
             {
                 Value = dr["LOGICALREF"].ToString(),
-                Text = dr["NAME"].ToString()
+                Code = dr["MalzemeKodu"].ToString(),
+                Text = dr["MalzemeAdi"].ToString(),
+                OnHand = Convert.ToDecimal(dr["FiiliStok"]),
+                RealStock = Convert.ToDecimal(dr["GercekStok"]),
+                ShippableStock = Convert.ToDecimal(dr["SevkedilebilirStok"])
             });
         }
+
         return list;
     }
+
 
     // Ürün birimleri dropdown (UOM + USREF)
     public Dictionary<int, List<SelectListItem>> GetUnits()
@@ -94,10 +110,25 @@ public class OrderRepository : IOrderRepository
         using SqlConnection con = new SqlConnection(_cs);
         con.Open();
 
+        //SqlCommand cmd = new SqlCommand(@"
+        //    SELECT TOP 1000 LOGICALREF, FICHENO, DATE_, TIME_, CLIENTREF, NETTOTAL
+        //    FROM LG_001_01_ORFICHE
+        //    ORDER BY LOGICALREF DESC", con);
         SqlCommand cmd = new SqlCommand(@"
-            SELECT TOP 1000 LOGICALREF, FICHENO, DATE_, TIME_, CLIENTREF, NETTOTAL
-            FROM LG_001_01_ORFICHE
-            ORDER BY LOGICALREF DESC", con);
+            SELECT TOP 1000
+                O.LOGICALREF,
+                O.FICHENO,
+                O.DATE_,
+                O.TIME_,
+                O.CLIENTREF,
+                C.DEFINITION_ AS CLIENTNAME,
+                O.NETTOTAL
+            FROM LG_001_01_ORFICHE O
+            LEFT JOIN LG_001_CLCARD C
+                ON C.LOGICALREF = O.CLIENTREF
+            ORDER BY O.LOGICALREF DESC
+        ", con);
+
 
         using SqlDataReader dr = cmd.ExecuteReader();
         while (dr.Read())
@@ -109,6 +140,7 @@ public class OrderRepository : IOrderRepository
                 DATE_ = (DateTime)dr["DATE_"],
                 TIME_ = Convert.ToInt32(dr["TIME_"]),
                 CLIENTREF = Convert.ToInt32(dr["CLIENTREF"]),
+                CLIENTNAME= dr["CLIENTNAME"].ToString(),
                 NETTOTAL = Convert.ToDecimal(dr["NETTOTAL"])
             });
         }
@@ -269,5 +301,87 @@ public class OrderRepository : IOrderRepository
             tran.Rollback();
             throw;
         }
+
+
+
     }
+
+    public OrderCreateViewModel GetOrderForEdit(int ordFicheRef)
+    {
+        var model = new OrderCreateViewModel();
+
+        using var con = new SqlConnection(_cs);
+        con.Open();
+
+        // ================= HEADER =================
+        using (var cmd = new SqlCommand(@"
+        SELECT 
+            LOGICALREF, TRCODE, FICHENO, DATE_, TIME_, CLIENTREF,
+            GROSSTOTAL, TOTALVAT, NETTOTAL,
+            ADDDISCOUNTS, TOTALDISCOUNTS, TOTALDISCOUNTED, REPORTNET
+            FROM LG_001_01_ORFICHE WHERE LOGICALREF = @ID
+        ", con))
+            {
+            cmd.Parameters.AddWithValue("@ID", ordFicheRef);
+
+            using var dr = cmd.ExecuteReader();
+            if (!dr.Read()) return null;
+
+            model.Header = new OrderHeaderModel
+            {
+                LOGICALREF = (int)dr["LOGICALREF"],
+                TRCODE = Convert.ToInt16(dr["TRCODE"]),
+                FICHENO = dr["FICHENO"].ToString(),
+                DATE_ = (DateTime)dr["DATE_"],
+                TIME_ = Convert.ToInt32(dr["TIME_"]),
+                CLIENTREF = Convert.ToInt32(dr["CLIENTREF"]),
+                GROSSTOTAL = Convert.ToDecimal(dr["GROSSTOTAL"]),
+                TOTALVAT = Convert.ToDecimal(dr["TOTALVAT"]),
+                NETTOTAL = Convert.ToDecimal(dr["NETTOTAL"]),
+                ADDDISCOUNTS = Convert.ToDecimal(dr["ADDDISCOUNTS"]),
+                TOTALDISCOUNTS = Convert.ToDecimal(dr["TOTALDISCOUNTS"]),
+                TOTALDISCOUNTED = Convert.ToDecimal(dr["TOTALDISCOUNTED"]),
+                REPORTNET = Convert.ToDecimal(dr["REPORTNET"])
+            };
+        }
+
+        // ================= LINES =================
+        model.Lines = new List<OrderLineModel>();
+
+        using (var cmd = new SqlCommand(@"
+        SELECT 
+                STOCKREF, AMOUNT, PRICE, VAT,
+                UOMREF, USREF,
+                LINENET, VATAMNT
+            FROM LG_001_01_ORFLINE
+            WHERE ORDFICHEREF = @ID
+              AND LINETYPE = 0
+            ORDER BY LINENO_
+        ", con))
+            {
+            cmd.Parameters.AddWithValue("@ID", ordFicheRef);
+
+            using var dr = cmd.ExecuteReader();
+            while (dr.Read())
+            {
+                model.Lines.Add(new OrderLineModel
+                {
+                    STOCKREF = Convert.ToInt32(dr["STOCKREF"]),
+                    AMOUNT = Convert.ToDecimal(dr["AMOUNT"]),
+                    PRICE = Convert.ToDecimal(dr["PRICE"]),
+                    VAT = Convert.ToInt32(dr["VAT"]),
+                    VATAMNT = Convert.ToDecimal(dr["VATAMNT"]),
+                    LINENET = Convert.ToDecimal(dr["LINENET"]),
+                    UOMREF = Convert.ToInt32(dr["UOMREF"]),
+                    USREF = Convert.ToInt32(dr["USREF"])
+                });
+            }
+        }
+
+        return model;
+    }
+
+
+
+
 }

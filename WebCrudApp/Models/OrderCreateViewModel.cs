@@ -12,8 +12,14 @@ namespace WebCrudApp.Models
         public List<OrderLineModel> Lines { get; set; }
         public List<SelectListItem> OrderTypes { get; set; }
         public List<SelectListItem> Clients { get; set; }
-        public List<SelectListItem> Items { get; set; }
+        public List<OrderItemViewModel> Items { get; set; }
         public List<SelectListItem> Units { get; set; } 
+
+
+
+
+
+
 
     }
 }

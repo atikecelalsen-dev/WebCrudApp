@@ -1,8 +1,14 @@
 ﻿@model WebCrudApp.Models.OrderCreateViewModel
 
-<h3>Sipariş İşlemleri</h3>
+@{
+    bool isEdit = Model.Header.LOGICALREF > 0;
+}
+<h3>@(isEdit ? "Sipariş Düzenle" : "Yeni Sipariş")</h3>
 
-<form method="post" id="itemForm" action="/Order/Create">
+
+@*<h3>Sipariş İşlemleri</h3>*@
+
+<form method="post" id="itemForm" action="@(isEdit ? "/Order/Edit" : "/Order/Create")">
     @Html.AntiForgeryToken()
 
     <!-- HEADER -->
@@ -60,13 +66,10 @@
                 </thead>
                 <tbody id="lineItemsBody">
                     <tr>
-                        <td>
-                            <select name="Lines[0].STOCKREF" class="form-control productSelect">
-                                <option value="">-- Seçiniz --</option>
-                                @foreach (var p in Model.Items)
-                                {
-                                    <option value="@p.Value">@p.Text</option>
-                                }
+                        <td style="width: 200px;">
+                            <select name="Lines[0].STOCKREF"
+                                    class="form-control productSelect"
+                                    tabindex="-1">
                             </select>
                         </td>
                         <td><input type="number" name="Lines[0].AMOUNT" class="form-control" /></td>
@@ -76,15 +79,11 @@
                             </select>
                             <input type="hidden" name="Lines[0].UOMREF" value="0" />
                             <input type="hidden" name="Lines[0].USREF" value="0" />
-
-
                         </td>
                         <td><input type="number" name="Lines[0].PRICE" class="form-control" /></td>
-                        <td><input type="number" name="Lines[0].VAT" class="form-control" /></td>
+                        <td><input type="number" name="Lines[0].VAT" class="form-control" value="20" /></td>
                         <td><input type="number" name="Lines[0].VATAMNT" class="form-control" readonly /></td>
                         <td><input type="number" name="Lines[0].LINENET" class="form-control" readonly /></td>
-                        
-                        
                         <td>
                             <button type="button" class="btn btn-danger removeLine">Sil</button>
                         </td>
@@ -93,56 +92,118 @@
                 </tbody>
             </table>
         </div>
-        <button type="button" class="btn btn-primary" id="addLineItem">Yeni Satır Ekle</button>
-
     </div>
-    <div class="col-md-3">
-        <label>İndirim Ekle</label>
-        <div class="input-group">
-            <input type="number" id="discountValue" class="form-control" value="0" min="0" />
-            <select id="discountType" class="form-select">
-                <option value="percent">%</option>
-                <option value="amount">Tutar</option>
-            </select>
+
+    <div class="row">
+        <div class="col  d-flex justify-content-start border="1">
+            <button type="button" class="btn btn-primary" id="addLineItem">Yeni Satır Ekle</button>
+        </div>
+
+        <div class="col d-flex align-items-center justify-content-end" border="1">
+            <label>INDIRIM:  </label>
+            <div style="margin-left:20px;" class="input-group">
+                <input type="number" id="discountValue" class="form-control" value="0" min="0" />
+                <select id="discountType" class="form-select">
+                    <option value="percent">%</option>
+                    <option value="amount">Tutar</option>
+                </select>
+            </div>
         </div>
     </div>
+    <br/>
 
     <!-- ALT TOPLAM & İNDİRİM -->
-    <div class="card mb-3">
-        <div class="card-body">
-            <div class="col-md-3">
-                <div class="row">
-                    <label>Toplam Tutar</label>
-                    <input type="text" id="GrossTotal" name="Header.GROSSTOTAL" class="form-control" readonly value="0" />
-                </div>
-                <div class="row">
-                    <label>Toplam KDV</label>
-                    <input type="text" id="TotalVAT" name="Header.TOTALVAT" class="form-control" readonly value="0" />
+    <div class="d-flex justify-content-end">
+        <div class="col-md-3">
+            <div class="col-mb-3">
+                <div class="row d-flex align-items-center" style="border:1px solid #dee2e6; padding:0; margin:0;">
+                    <div class="col-6 justify-content-start">
+                        <label>TOPLAM TUTAR</label>
+                        </div>
+                    <div class=" col-6 justify-content-end">
+                        <input class="form-control" type="text" id="GrossTotal" name="Header.GROSSTOTAL" readonly value="0" />
+                    </div>
+            </div>
+                <div class="row d-flex align-items-center" style="border:1px solid #dee2e6; padding:0; margin:0;">
+                    <div class="col-6 justify-content-start">
+                        <label>TOPLAM KDV</label>
+                    </div>
+                    <div class=" col-6 justify-content-end">
+                        <input type="text" id="TotalVAT" name="Header.TOTALVAT" class="form-control" readonly value="0" />
+                    </div>
                 </div>
                
-                <div class="row">
-                    <label>Toplam Indirim</label>
-                    <input type="text" id="discount"  class="form-control" readonly value="0" />
+                <div class="row d-flex align-items-center" style="border:1px solid #dee2e6; padding:0; margin:0;">
+                    <div class="col-6 justify-content-start">
+                        <label>TOPLAM INDIRIM</label>
+                    </div>
+                    <div class=" col-6 justify-content-end">
+                        <input type="text" id="discount"  class="form-control" readonly value="0" />
+                </div>
                 </div>
 
-                <div class="row">
-                    <label>Net Tutar</label>
-                    <input type="text" id="NetTotal" name="Header.NETTOTAL" class="form-control" readonly value="0" />
+                <div class="row d-flex align-items-center" style="border:1px solid #dee2e6; padding:0; margin:0;">
+                    <div class="col-6 justify-content-start">
+                        <label>NET TUTAR</label>
+                    </div>
+                    <div class=" col-6 justify-content-end">
+                        <input class="form-control" type="text" id="NetTotal" name="Header.NETTOTAL" readonly value="0" />
+                     </div>
                 </div>
             </div>
-
 
             <input type="hidden" id="ADDDISCOUNTS" name="Header.ADDDISCOUNTS" />
             <input type="hidden" id="TOTALDISCOUNTS" name="Header.TOTALDISCOUNTS" />
             <input type="hidden" id="TOTALDISCOUNTED" name="Header.TOTALDISCOUNTED" />
-            
             <input type="hidden" id="ReportNet" name="Header.REPORTNET"/>
         </div>
     </div>
+    <br/>
 
-    <button type="button" id="btnSave" class="btn btn-primary">Kaydet</button>
+    <div class="d-flex justify-content-end">
+        <button type="button" id="btnSave" class="btn btn-primary"> @(isEdit ? "Güncelle" : "Kaydet")</button>
+    </div>
 </form>
+
 </<br />
+<div class="modal fade" id="itemModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Malzeme ve Stoklar</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered" id="itemModalTable">
+                    <thead>
+                        <tr>
+                            <th>Kodu</th>
+                            <th>Adı</th>
+                            <th>Fiili Stok</th>
+                            <th>Gerçek Stok</th>
+                            <th>Sevkedilebilir Stok</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr class="selectable-item" data-ref="@item.Value" data-name="@item.Text">
+                                <td>@item.Code</td>
+                                <td>@item.Text</td>
+                                <td>@item.OnHand</td>
+                                <td>@item.RealStock</td>
+                                <td>@item.ShippableStock</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
@@ -152,11 +213,11 @@
     // Yeni satır ekleme
     $("#addLineItem").click(function(){
         const row = `<tr>
-            <td>
-                <select name="Lines[${lineIndex}].STOCKREF" class="form-control productSelect">
-                    <option value="">-- Seçiniz --</option>
-                    ${Object.entries(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Items)))
-                        .map(i => `<option value="${i[1].Value}">${i[1].Text}</option>`).join("")}
+            <td style="width: 200px;">
+                <select
+                    name="Lines[${lineIndex}].STOCKREF"
+                    class="form-control productSelect"
+                    tabindex="-1">
                 </select>
             </td>
             <td><input type="number" name="Lines[${lineIndex}].AMOUNT" class="form-control" /></td>
@@ -167,41 +228,81 @@
                 </select>
                  <input type="hidden" name="Lines[${lineIndex}].UOMREF" value="0"/> 
                  <input type="hidden" name="Lines[${lineIndex}].USREF" value="0" />
-
             </td>
             <td><input type="number" name="Lines[${lineIndex}].PRICE" class="form-control" /></td>
-            <td><input type="number" name="Lines[${lineIndex}].VAT" class="form-control" /></td>
+            <td><input type="number" name="Lines[${lineIndex}].VAT" class="form-control" value="20" /></td>
             <td><input type="number" name="Lines[${lineIndex}].VATAMNT" class="form-control" readonly /></td>
             <td><input type="number" name="Lines[${lineIndex}].LINENET" class="form-control" readonly /></td>
             <td><button type="button" class="btn btn-danger removeLine">Sil</button></td>
-          
-                  
-    
         </tr>`;
         $("#lineItemsBody").append(row);
         lineIndex++;
     });
 
+    // //Ürün seçmek için Modal açıyoruz.
+    $(document).on('focus', '.productSelect', function () {
+        window.currentDropdown = this;
+        $('#itemModal').modal('show');
+    });
+
+    $(document).on('click', '.selectable-item', function () {
+        if (!window.currentDropdown) return;
+        const ref = $(this).data('ref');
+        const name = $(this).data('name');
+        const select = window.currentDropdown;
+        if (!$(select).is("select")) {
+            console.error("currentDropdown select değil:", select);
+            return;
+        }
+        $(select)
+            .empty()
+            .append(`<option value="${ref}" selected>${name}</option>`);
+        fillUnits(select);
+        $('#itemModal').modal('hide');
+    });
+
+     
     // Satır sil
     $("#lineItemsBody").on("click", ".removeLine", function(){
         $(this).closest("tr").remove();
     });
 
-    // Ürün seçildiğinde birimleri doldur
-    $("#lineItemsBody").on("change", ".productSelect", function(){
-        const row = $(this).closest("tr");
-        const unitSelect = row.find(".unitSelect");
-        const productId = $(this).val();
-        unitSelect.html('<option value="">-- Seçiniz --</option>');
-        if(productUnits[productId]){
-            productUnits[productId].forEach(u => {
-                unitSelect.append(`<option value="${u.Value}">${u.Text}</option>`);
-            });
-        }
+    //Ürün seçildiğinde birimleri doldur
+    
+    $(document).on("change", ".productSelect", function () {
+        fillUnits(this);
     });
 
-           function recalcTotals() {
-
+    function fillUnits(productSelect) {
+        if (!productSelect || !$(productSelect).is("select")) {
+            console.error("fillUnits → HATALI PARAMETRE:", productSelect);
+            return;
+        }
+        const row = $(productSelect).closest("tr");
+        const unitSelect = row.find(".unitSelect");
+        if (unitSelect.length === 0) {
+            console.error("unitSelect bulunamadı");
+            return;
+        }
+        const productId = parseInt($(productSelect).val(), 10);
+        if (!productId) {
+            console.warn("productId boş");
+            return;
+        }
+        console.log("fillUnits → ITEMREF:", productId);
+        unitSelect.empty().append('<option value="">-- Seçiniz --</option>');
+        if (productUnits && productUnits[productId]) {
+            productUnits[productId].forEach(u => {
+                unitSelect.append(
+                    `<option value="${u.Value}">${u.Text}</option>`
+                );
+            });
+        } else {
+            console.warn("Bu item için unit yok:", productId);
+        }
+    }
+  
+    function recalcTotals() {
         let gross = 0;
         let totalVAT = 0;
 
@@ -252,7 +353,7 @@
     $("#discountValue").on("input", recalcTotals);
     $("#discountType").on("change", recalcTotals);
         // Birim seçildiğinde UOMREF & USREF ayır
-        $("#lineItemsBody").on("change", ".unitSelect", function () {
+    $("#lineItemsBody").on("change", ".unitSelect", function () {
         const row = $(this).closest("tr");
         const [uomRef, usRef] = $(this).val().split("|");
         row.find("input[name$='.UOMREF']").val(uomRef);
