@@ -63,7 +63,13 @@ public class OrderController : Controller
             {
                 DATE_ = DateTime.Now
             },
-            Lines = new List<OrderLineModel>()
+            Lines = new List<OrderLineModel>
+        {
+            new OrderLineModel
+            {
+                VAT = 20
+            }
+        }
         };
 
         FillDropdowns(model);

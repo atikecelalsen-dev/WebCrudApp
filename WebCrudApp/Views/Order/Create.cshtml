@@ -64,7 +64,8 @@
     <!-- LINE ITEMS -->
     <div class="line-items-section mb-3">
         <div class="card">
-            <table id="itemTable" class="table table-hover" border="1" style="border-collapse: collapse;">
+            <table id="itemTable" class="table table-hover" border="1" 
+                   style="border-collapse: collapse; table-layout: fixed; width: 100%;">
                 <thead>
                     <tr>
                         <th>Malzeme</th>
@@ -149,10 +150,10 @@
                     {
                         <!-- CREATE için ilk boş satır -->
                         <tr>
-                            <td>
+                            <td style="width: 300px;">
                                 <select name="Lines[0].STOCKREF"
                                         class="form-control productSelect"
-                                        tabindex="-1">
+                                        tabindex="-1" accesskey="";>
                                 </select>
                             </td>
                             <td><input type="number" name="Lines[0].AMOUNT" class="form-control" /></td>
@@ -300,20 +301,62 @@
 
     let lineIndex = 1;
     const productUnits = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.ProductUnits));
-
-        $(document).ready(function () {
+        
+    $(document).ready(function () {
         const dbDiscount = parseFloat($("#TOTALDISCOUNTS").val()) || 0;
-
         console.log("DB Discount =", dbDiscount);
+    if (dbDiscount > 0) {
+        $("#discountValue").val(dbDiscount);
+        $("#discountType").val("amount"); // LOGO mantığı
+    }
+        $(".productSelect").each(function () {
+            const select = $(this);
+            const stockRef = select.data("selected");
 
-        if (dbDiscount > 0) {
-            $("#discountValue").val(dbDiscount);
-            $("#discountType").val("amount"); // LOGO mantığı
-        }
+            if (!stockRef) return;
+
+            @* // ürün adını modal tablodan bul *@
+            const itemRow = $("#itemModalTable tr[data-ref='" + stockRef + "']");
+            const itemName = itemRow.data("name");
+
+            @* // ürün dropdownuna yaz *@
+            select
+                .empty()
+                .append(`<option value="${stockRef}" selected>${itemName}</option>`);
+
+            @* // 🔥 ÖNCE UNIT DOLDUR *@
+            fillUnits(this);
+
+            @* // 🔥 SONRA unit seç *@
+            const row = select.closest("tr");
+            const unitSelect = row.find(".unitSelect");
+
+            const uom = unitSelect.data("uom");
+            const us = unitSelect.data("us");
+
+            if (uom && us) {
+                unitSelect.val(`${uom}|${us}`);
+            }
+        });
 
         recalcTotals();
     });
 
+        function fillUnits(productSelect) {
+        const row = $(productSelect).closest("tr");
+        const unitSelect = row.find(".unitSelect");
+        const productId = parseInt($(productSelect).val(), 10);
+
+        unitSelect.empty().append('<option value="">-- Seçiniz --</option>');
+
+        if (productUnits && productUnits[productId]) {
+            productUnits[productId].forEach(u => {
+                unitSelect.append(
+                    `<option value="${u.Value}">${u.Text}</option>`
+                );
+            });
+        }
+    }
 
 
     @* // Yeni satır ekleme *@
@@ -379,7 +422,7 @@
         fillUnits(this);
     });
 
-    function fillUnits(productSelect) {
+    @* function fillUnits(productSelect) {
         if (!productSelect || !$(productSelect).is("select")) {
             console.error("fillUnits → HATALI PARAMETRE:", productSelect);
             return;
@@ -406,7 +449,7 @@
         } else {
             console.warn("Bu item için unit yok:", productId);
         }
-    }
+    } *@
   
     function recalcTotals() {
         let gross = 0;
