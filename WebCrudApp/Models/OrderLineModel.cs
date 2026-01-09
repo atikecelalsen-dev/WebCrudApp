@@ -10,7 +10,7 @@ namespace WebCrudApp.Models
         public int STOCKREF { get; set; }
         public int CLIENTREF { get; set; }
 
-        public short LINETYPE { get; set; }
+        public short? LINETYPE { get; set; }
         public short LINENO_ { get; set; }
         public short DETLINE { get; set; }
         public int TRCODE { get; set; }

@@ -381,6 +381,40 @@ public class OrderRepository : IOrderRepository
         return model;
     }
 
+    public bool DeleteOrder(int logicalRef)
+    {
+        using (var conn = new SqlConnection(_cs))
+        {
+            conn.Open();
+            using (var transaction = conn.BeginTransaction())
+            {
+                try
+                {
+                    // Önce ORFLINE satırlarını sil
+                    var cmdLines = new SqlCommand(
+                        "DELETE FROM LG_001_01_ORFLINE WHERE ORDFICHEREF = @LogicalRef", conn, transaction);
+                    cmdLines.Parameters.AddWithValue("@LogicalRef", logicalRef);
+                    cmdLines.ExecuteNonQuery();
+
+                    // Sonra ORDFICHE kaydını sil
+                    var cmdHeader = new SqlCommand(
+                        "DELETE FROM LG_001_01_ORFICHE WHERE LOGICALREF = @LogicalRef", conn, transaction);
+                    cmdHeader.Parameters.AddWithValue("@LogicalRef", logicalRef);
+                    int rowsAffected = cmdHeader.ExecuteNonQuery();
+
+                    transaction.Commit();
+                    return rowsAffected > 0;
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    throw;
+                }
+            }
+        }
+    }
+
+
     public void UpdateOrderHeader(OrderHeaderModel header)
     {
         using (var con = new SqlConnection(_cs))
@@ -422,42 +456,11 @@ public class OrderRepository : IOrderRepository
             if (rowsAffected == 0)
                 throw new Exception("Header güncellenemedi. LOGICALREF yanlış olabilir.");
 
-            cmd.ExecuteNonQuery();
+            //cmd.ExecuteNonQuery();
         }
     }
 
-    public bool DeleteOrder(int logicalRef)
-    {
-        using (var conn = new SqlConnection(_cs))
-        {
-            conn.Open();
-            using (var transaction = conn.BeginTransaction())
-            {
-                try
-                {
-                    // Önce ORFLINE satırlarını sil
-                    var cmdLines = new SqlCommand(
-                        "DELETE FROM LG_001_01_ORFLINE WHERE ORDFICHEREF = @LogicalRef", conn, transaction);
-                    cmdLines.Parameters.AddWithValue("@LogicalRef", logicalRef);
-                    cmdLines.ExecuteNonQuery();
-
-                    // Sonra ORDFICHE kaydını sil
-                    var cmdHeader = new SqlCommand(
-                        "DELETE FROM LG_001_01_ORFICHE WHERE LOGICALREF = @LogicalRef", conn, transaction);
-                    cmdHeader.Parameters.AddWithValue("@LogicalRef", logicalRef);
-                    int rowsAffected = cmdHeader.ExecuteNonQuery();
-
-                    transaction.Commit();
-                    return rowsAffected > 0;
-                }
-                catch
-                {
-                    transaction.Rollback();
-                    throw;
-                }
-            }
-        }
-    }
+    
 
 
     public void UpdateOrderLines(int headerRef, List<OrderLineModel> lines, OrderHeaderModel header)

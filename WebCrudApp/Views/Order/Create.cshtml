@@ -253,8 +253,16 @@
     <br/>
 
     <div class="d-flex justify-content-end">
-        <button type="submit" id="btnSave" class="btn btn-primary"> @(isEdit ? "Güncelle" : "Kaydet")</button>
-
+        @* <button type="submit" id="btnSave" class="btn btn-primary"> @(isEdit ? "Güncelle" : "Kaydet")</button> *@
+        
+        @if (isEdit)
+        {
+            <button type="button" id="btnUpdate" class="btn btn-secondary">Güncelle</button>
+        }
+        else
+        {
+            <button type="button" id="btnSave" class="btn btn-primary">Kaydet</button>
+        }
     </div>
 </form>
 
@@ -298,36 +306,30 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-
-    let lineIndex = 1;
-    const productUnits = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.ProductUnits));
+  let lineIndex = 1;
+  const productUnits = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.ProductUnits));
         
-    $(document).ready(function () {
+  $(document).ready(function () {
         const dbDiscount = parseFloat($("#TOTALDISCOUNTS").val()) || 0;
         console.log("DB Discount =", dbDiscount);
     if (dbDiscount > 0) {
         $("#discountValue").val(dbDiscount);
         $("#discountType").val("amount"); // LOGO mantığı
     }
-        $(".productSelect").each(function () {
+  
+    $(".productSelect").each(function () {
             const select = $(this);
             const stockRef = select.data("selected");
 
             if (!stockRef) return;
-
-            @* // ürün adını modal tablodan bul *@
             const itemRow = $("#itemModalTable tr[data-ref='" + stockRef + "']");
             const itemName = itemRow.data("name");
 
-            @* // ürün dropdownuna yaz *@
             select
                 .empty()
                 .append(`<option value="${stockRef}" selected>${itemName}</option>`);
-
-            @* // 🔥 ÖNCE UNIT DOLDUR *@
             fillUnits(this);
 
-            @* // 🔥 SONRA unit seç *@
             const row = select.closest("tr");
             const unitSelect = row.find(".unitSelect");
 
@@ -413,7 +415,10 @@
      
     @* // Satır sil *@
     $("#lineItemsBody").on("click", ".removeLine", function(){
+        if(!confirm('Bu siparişi silmek istediğinize emin misiniz?')) return;
+
         $(this).closest("tr").remove();
+
     });
 
     @* //Ürün seçildiğinde birimleri doldur *@
@@ -478,50 +483,59 @@
         const [uomRef, usRef] = $(this).val().split("|");
         row.find("input[name$='.UOMREF']").val(uomRef);
         row.find("input[name$='.USREF']").val(usRef);
-        console.log($("input[name$='.UOMREF']").val());
-        console.log($("input[name$='.USREF']").val());
-        console.log($("#itemForm").serialize());
     });
 
+        $("#btnSave").click(function(){
+                recalcTotals();
+                $.ajax({
+                    url: '/Order/Create',
+                    type: 'POST',
+                    data: $("#itemForm").serialize(),
+                    headers: {'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()},
+                    success: 
+                    function(){
+                        alert("Kaydedildi"); 
+                    @* location.reload();  *@
+                      window.location.href = "/Order/Index";
+                    },
+                    error: function(err){ console.log(err.responseText); alert("Hata"); }
+                });
+            });
     @* // Submit öncesi toplamları güncelle *@
-  $("#btnSave").click(function(e){
-        e.preventDefault(); // formun default submit olmasını engeller
-        recalcTotals();      // toplam hesaplamayı yap
+   function submitOrder(url) {
+        recalcTotals();
 
+        const logicalRef = $("input[name='Header.LOGICALREF']").val();
+        console.log("LOGICALREF =", logicalRef);
 
-      let formData = $("#itemForm").serialize(); // formu serialize et
-      console.log("FORM DATA:", formData); // burada tüm veriler görünecek
-
-
-        var form = $("#itemForm");
-        var url = form.attr("action"); // form action'ına bak (Create veya Edit)
+        let formData = $("#itemForm").serialize();
+        console.log("FORM DATA =", formData);
 
         $.ajax({
             url: url,
             type: "POST",
-            data: form.serialize(),
+            data: formData,
             headers: {
                 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
             },
-            success: function(res){
-                if(res.success){
-                    alert(res.message || "Kaydedildi!");
-                    // Eğer Create ise aynı sayfada kal, Edit ise listeye yönlendir
-                    if(url.toLowerCase().includes("edit")){
-                        window.location.href = "/Order";
-                    } else {
-                        window.location.reload();
-                    }
-                } else {
-                    alert(res.message || "Hata oluştu!");
-                }
+            success: function (res) {
+                console.log("RESPONSE =", res);
+                alert(res.message || "OK");
+                window.location.href = "/Order/Index";
             },
-            error: function(err){
+            error: function (err) {
                 console.error(err.responseText);
-                alert("Sunucu hatası oluştu!");
             }
         });
+    }
+         
+            
+
+    $("#btnUpdate").on("click", function (e) {
+        e.preventDefault();
+        submitOrder("/Order/Edit");
     });
+
 
 
     @* // TIME_ otomatik oluştur *@
