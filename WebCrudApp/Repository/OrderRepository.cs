@@ -381,6 +381,187 @@ public class OrderRepository : IOrderRepository
         return model;
     }
 
+    public void UpdateOrderHeader(OrderHeaderModel header)
+    {
+        using (var con = new SqlConnection(_cs))
+        {
+            con.Open();
+
+            var cmd = new SqlCommand(@"
+            UPDATE LG_001_01_ORFICHE
+            SET 
+                DATE_ = @DATE_,
+                TIME_ = @TIME_,
+                CLIENTREF = @CLIENTREF,
+                TRCODE = @TRCODE,
+                NETTOTAL = @NETTOTAL,
+                GROSSTOTAL = @GROSSTOTAL,
+                TOTALVAT = @TOTALVAT,
+                TOTALDISCOUNTS = @TOTALDISCOUNTS,
+                TOTALDISCOUNTED = @TOTALDISCOUNTED,
+                ADDDISCOUNTS = @ADDDISCOUNTS,
+                REPORTNET = @REPORTNET,
+                FICHENO = @FICHENO
+            WHERE LOGICALREF = @LOGICALREF
+        ", con);
+
+            cmd.Parameters.AddWithValue("@LOGICALREF", header.LOGICALREF);
+            cmd.Parameters.AddWithValue("@DATE_", header.DATE_);
+            cmd.Parameters.AddWithValue("@TIME_", header.TIME_);
+            cmd.Parameters.AddWithValue("@CLIENTREF", header.CLIENTREF);
+            cmd.Parameters.AddWithValue("@TRCODE", header.TRCODE);
+            cmd.Parameters.AddWithValue("@NETTOTAL", header.NETTOTAL);
+            cmd.Parameters.AddWithValue("@GROSSTOTAL", header.GROSSTOTAL);
+            cmd.Parameters.AddWithValue("@TOTALVAT", header.TOTALVAT);
+            cmd.Parameters.AddWithValue("@TOTALDISCOUNTS", header.TOTALDISCOUNTS);
+            cmd.Parameters.AddWithValue("@TOTALDISCOUNTED", header.TOTALDISCOUNTED);
+            cmd.Parameters.AddWithValue("@ADDDISCOUNTS", header.ADDDISCOUNTS);
+            cmd.Parameters.AddWithValue("@REPORTNET", header.REPORTNET);
+            cmd.Parameters.AddWithValue("@FICHENO", header.FICHENO);
+            int rowsAffected = cmd.ExecuteNonQuery();
+            if (rowsAffected == 0)
+                throw new Exception("Header güncellenemedi. LOGICALREF yanlış olabilir.");
+
+            cmd.ExecuteNonQuery();
+        }
+    }
+
+    public bool DeleteOrder(int logicalRef)
+    {
+        using (var conn = new SqlConnection(_cs))
+        {
+            conn.Open();
+            using (var transaction = conn.BeginTransaction())
+            {
+                try
+                {
+                    // Önce ORFLINE satırlarını sil
+                    var cmdLines = new SqlCommand(
+                        "DELETE FROM LG_001_01_ORFLINE WHERE ORDFICHEREF = @LogicalRef", conn, transaction);
+                    cmdLines.Parameters.AddWithValue("@LogicalRef", logicalRef);
+                    cmdLines.ExecuteNonQuery();
+
+                    // Sonra ORDFICHE kaydını sil
+                    var cmdHeader = new SqlCommand(
+                        "DELETE FROM LG_001_01_ORFICHE WHERE LOGICALREF = @LogicalRef", conn, transaction);
+                    cmdHeader.Parameters.AddWithValue("@LogicalRef", logicalRef);
+                    int rowsAffected = cmdHeader.ExecuteNonQuery();
+
+                    transaction.Commit();
+                    return rowsAffected > 0;
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    throw;
+                }
+            }
+        }
+    }
+
+
+    public void UpdateOrderLines(int headerRef, List<OrderLineModel> lines, OrderHeaderModel header)
+    {
+        using (var con = new SqlConnection(_cs))
+        {
+            con.Open();
+            using var tran = con.BeginTransaction();
+            try
+            {
+               
+                // 1️⃣ Mevcut satırları sil
+                var deleteCmd = new SqlCommand(
+                    "DELETE FROM LG_001_01_ORFLINE WHERE ORDFICHEREF = @FICHEREF", con, tran);
+                deleteCmd.Parameters.AddWithValue("@FICHEREF", headerRef);
+                deleteCmd.ExecuteNonQuery();
+
+                
+
+                // 2️⃣ Yeni satırları ekle
+                int lineNo = 1;
+                foreach (var line in lines)
+                {
+                    decimal total = line.AMOUNT * line.PRICE;
+                    decimal vatAmount = total * line.VAT / 100;
+
+                    var insertCmd = new SqlCommand(@"
+                    INSERT INTO LG_001_01_ORFLINE
+                    (ORDFICHEREF, STOCKREF, CLIENTREF, LINETYPE, LINENO_, DETLINE,
+                     TRCODE, DATE_, TIME_, AMOUNT, PRICE, TOTAL,
+                     VAT, VATAMNT, VATMATRAH, LINENET, UOMREF, USREF,
+                     RECSTATUS, CANCELLED, UINFO1, UINFO2, GROSSUINFO1, GROSSUINFO2, SHIPPEDAMOUNT, CLOSED, DORESERVE)
+                    VALUES
+                    (@ORDFICHEREF, @STOCKREF, @CLIENTREF, 0, @LINENO_, 0,
+                     @TRCODE, @DATE_, @TIME_, @AMOUNT, @PRICE, @TOTAL,
+                     @VAT, @VATAMNT, @VATMATRAH, @LINENET, @UOMREF, @USREF,
+                     1, 0, 1, 1, @GROSSUINFO1, @GROSSUINFO2, @SHIPPEDAMOUNT, 0, 0)
+                ", con, tran);
+
+                    insertCmd.Parameters.AddWithValue("@ORDFICHEREF", headerRef);
+                    insertCmd.Parameters.AddWithValue("@STOCKREF", line.STOCKREF);
+                    insertCmd.Parameters.AddWithValue("@CLIENTREF", header.CLIENTREF);
+                    insertCmd.Parameters.AddWithValue("@LINENO_", lineNo++);
+                    insertCmd.Parameters.AddWithValue("@TRCODE", header.TRCODE);
+                    insertCmd.Parameters.AddWithValue("@DATE_", header.DATE_);
+                    insertCmd.Parameters.AddWithValue("@TIME_", header.TIME_);
+                    insertCmd.Parameters.AddWithValue("@AMOUNT", line.AMOUNT);
+                    insertCmd.Parameters.AddWithValue("@PRICE", line.PRICE);
+                    insertCmd.Parameters.AddWithValue("@TOTAL", total);
+                    insertCmd.Parameters.AddWithValue("@VAT", line.VAT);
+                    insertCmd.Parameters.AddWithValue("@VATAMNT", vatAmount);
+                    insertCmd.Parameters.AddWithValue("@VATMATRAH", total);
+                    insertCmd.Parameters.AddWithValue("@LINENET", total);
+                    insertCmd.Parameters.AddWithValue("@UOMREF", line.UOMREF);
+                    insertCmd.Parameters.AddWithValue("@USREF", line.USREF);
+                    insertCmd.Parameters.AddWithValue("@GROSSUINFO1", line.AMOUNT);
+                    insertCmd.Parameters.AddWithValue("@GROSSUINFO2", 1);
+                    insertCmd.Parameters.AddWithValue("@SHIPPEDAMOUNT", line.AMOUNT);
+
+                    insertCmd.ExecuteNonQuery();
+                }
+
+                // 🔹 İndirim satırı ekle (varsa)
+                if (header.TOTALDISCOUNTS > 0)
+                {
+                    var cmdDiscount = new SqlCommand(@"
+                    INSERT INTO LG_001_01_ORFLINE
+                    (ORDFICHEREF, STOCKREF, CLIENTREF, LINETYPE, LINENO_, DETLINE,
+                     TRCODE, DATE_, TIME_, AMOUNT, PRICE, TOTAL,
+                     VAT, VATAMNT, VATMATRAH, LINENET, UOMREF, USREF,
+                     RECSTATUS, CANCELLED)
+                    VALUES
+                    (@ORDFICHEREF, 0, @CLIENTREF, 2, @LINENO_, 0,
+                     @TRCODE, @DATE_, @TIME_, 0, 0, @TOTAL,
+                     0, 0, 0, 0, 0, 0,
+                     1, 0)
+                ", con, tran);
+
+                    cmdDiscount.Parameters.AddWithValue("@ORDFICHEREF", headerRef);
+                    cmdDiscount.Parameters.AddWithValue("@CLIENTREF", header.CLIENTREF);
+                    cmdDiscount.Parameters.AddWithValue("@LINENO_", lineNo++);
+                    cmdDiscount.Parameters.AddWithValue("@TRCODE", header.TRCODE);
+                    cmdDiscount.Parameters.AddWithValue("@DATE_", header.DATE_);
+                    cmdDiscount.Parameters.AddWithValue("@TIME_", header.TIME_);
+                    cmdDiscount.Parameters.AddWithValue("@TOTAL", header.TOTALDISCOUNTS);
+
+                    cmdDiscount.ExecuteNonQuery();
+                }
+
+                tran.Commit();
+            }
+            catch
+            {
+                tran.Rollback();
+                throw;
+            }
+        }
+    }
+
+
+
+
+
+
 
 
 

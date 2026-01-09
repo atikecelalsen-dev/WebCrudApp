@@ -98,11 +98,72 @@ public class OrderController : Controller
         return View("Create", model);           // 🔥 AYNI VIEW
     }
 
-    //[HttpPost]
-    //public IActionResult Edit(OrderCreateViewModel model)
-    //{
-    //    // UPDATE
-    //}
+    [HttpPost]
+    public IActionResult DeleteOrder(int id)
+    {
+        bool success = _repo.DeleteOrder(id);
+        if (success)
+        {
+            return Json(new { success = true });
+        }
+        return Json(new { success = false, message = "Sipariş silinemedi." });
+    }
+
+
+
+
+
+
+
+
+
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Edit3(OrderCreateViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            // Hangi alanlar hatalı?
+            var errors = ModelState
+                            .Where(x => x.Value.Errors.Count > 0)
+                            .Select(x => new { x.Key, x.Value.Errors })
+                            .ToList();
+            return Json(new { success = false, errors });
+        }
+
+        // Kaydetme işlemi
+        
+    return Json(new { success = true });
+    }
+
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Edit(OrderCreateViewModel vm)
+    {
+        if (!ModelState.IsValid)
+        {
+            return Json(new { success = false, message = "Form eksik veya hatalı." });
+        }
+
+      
+        try
+        {
+            // 1️⃣ Header güncelle
+            _repo.UpdateOrderHeader(vm.Header);
+
+            // 2️⃣ Lines güncelle (header da gönderiliyor, indirim için)
+            _repo.UpdateOrderLines(vm.Header.LOGICALREF, vm.Lines, vm.Header);
+
+            // 3️⃣ Başarılıysa JSON veya redirect
+            return Json(new { success = true, message = "Sipariş başarıyla güncellendi." });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { success = false, message = ex.Message });
+        }
+    }
 
 
 }

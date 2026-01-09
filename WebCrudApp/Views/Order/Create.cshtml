@@ -5,10 +5,9 @@
 }
 <h3>@(isEdit ? "Sipariş Düzenle" : "Yeni Sipariş")</h3>
 
+<form method="post" id="itemForm" 
+    action="@(isEdit ? "/Order/Edit" : "/Order/Create")">
 
-@*<h3>Sipariş İşlemleri</h3>*@
-
-<form method="post" id="itemForm" action="@(isEdit ? "/Order/Edit" : "/Order/Create")">
     @Html.AntiForgeryToken()
 
     <!-- HEADER -->
@@ -177,11 +176,11 @@
     </div>
 
     <div class="row">
-        <div class="col  d-flex justify-content-start border="1">
+        <div class="col d-flex justify-content-start" >
             <button type="button" class="btn btn-primary" id="addLineItem">Yeni Satır Ekle</button>
         </div>
 
-        <div class="col d-flex align-items-center justify-content-end" border="1">
+        <div class="col d-flex align-items-center justify-content-end">
             <label>INDIRIM:  </label>
             <div style="margin-left:20px;" class="input-group">
                 <input type="number" id="discountValue" class="form-control" value="0" min="0" />
@@ -254,11 +253,12 @@
     <br/>
 
     <div class="d-flex justify-content-end">
-        <button type="button" id="btnSave" class="btn btn-primary"> @(isEdit ? "Güncelle" : "Kaydet")</button>
+        <button type="submit" id="btnSave" class="btn btn-primary"> @(isEdit ? "Güncelle" : "Kaydet")</button>
+
     </div>
 </form>
 
-</<br />
+<br />
 <div class="modal fade" id="itemModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
@@ -421,35 +421,6 @@
     $(document).on("change", ".productSelect", function () {
         fillUnits(this);
     });
-
-    @* function fillUnits(productSelect) {
-        if (!productSelect || !$(productSelect).is("select")) {
-            console.error("fillUnits → HATALI PARAMETRE:", productSelect);
-            return;
-        }
-        const row = $(productSelect).closest("tr");
-        const unitSelect = row.find(".unitSelect");
-        if (unitSelect.length === 0) {
-            console.error("unitSelect bulunamadı");
-            return;
-        }
-        const productId = parseInt($(productSelect).val(), 10);
-        if (!productId) {
-            console.warn("productId boş");
-            return;
-        }
-        console.log("fillUnits → ITEMREF:", productId);
-        unitSelect.empty().append('<option value="">-- Seçiniz --</option>');
-        if (productUnits && productUnits[productId]) {
-            productUnits[productId].forEach(u => {
-                unitSelect.append(
-                    `<option value="${u.Value}">${u.Text}</option>`
-                );
-            });
-        } else {
-            console.warn("Bu item için unit yok:", productId);
-        }
-    } *@
   
     function recalcTotals() {
         let gross = 0;
@@ -513,17 +484,45 @@
     });
 
     @* // Submit öncesi toplamları güncelle *@
-        $("#btnSave").click(function(){
-        recalcTotals(); 
+  $("#btnSave").click(function(e){
+        e.preventDefault(); // formun default submit olmasını engeller
+        recalcTotals();      // toplam hesaplamayı yap
+
+
+      let formData = $("#itemForm").serialize(); // formu serialize et
+      console.log("FORM DATA:", formData); // burada tüm veriler görünecek
+
+
+        var form = $("#itemForm");
+        var url = form.attr("action"); // form action'ına bak (Create veya Edit)
+
         $.ajax({
-            url: '/Order/Create',
-            type: 'POST',
-            data: $("#itemForm").serialize(),
-            headers: {'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()},
-            success: function(){ alert("Kaydedildi"); location.reload(); },
-            error: function(err){ console.log(err.responseText); alert("Hata"); }
+            url: url,
+            type: "POST",
+            data: form.serialize(),
+            headers: {
+                'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+            },
+            success: function(res){
+                if(res.success){
+                    alert(res.message || "Kaydedildi!");
+                    // Eğer Create ise aynı sayfada kal, Edit ise listeye yönlendir
+                    if(url.toLowerCase().includes("edit")){
+                        window.location.href = "/Order";
+                    } else {
+                        window.location.reload();
+                    }
+                } else {
+                    alert(res.message || "Hata oluştu!");
+                }
+            },
+            error: function(err){
+                console.error(err.responseText);
+                alert("Sunucu hatası oluştu!");
+            }
         });
     });
+
 
     @* // TIME_ otomatik oluştur *@
     function getLogoTime(){
