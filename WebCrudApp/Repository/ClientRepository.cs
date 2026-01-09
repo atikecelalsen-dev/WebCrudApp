@@ -1,7 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using System.Data;
 using WebCrudApp.Data;
-using WebCrudApp.Models;
+using WebCrudApp.Models.Client;
 
 namespace WebCrudApp.Repository
 {

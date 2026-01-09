@@ -2,9 +2,8 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Data.SqlClient;
 using System.Reflection;
-using WebCrudApp.Models;
 
-namespace WebCrudApp.Models
+namespace WebCrudApp.Models.Order
 {
     public class OrderCreateViewModel
     {

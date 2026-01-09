@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Data.SqlClient;
 using System;
-using WebCrudApp.Models;
+using WebCrudApp.Models.Order;
 
 public class OrderRepository : IOrderRepository
 {

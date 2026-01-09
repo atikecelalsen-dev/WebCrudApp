@@ -1,4 +1,4 @@
-﻿@model WebCrudApp.Models.ItemViewModel
+﻿@model WebCrudApp.Models.Item.ItemViewModel
 @{
 }
 <h3 style="margin-top:10px; margin-bottom:20px; ">Malzeme Verilerini Düzenleyin : </h3>
@@ -62,6 +62,9 @@
 
 <button type="button" onclick="saveChanges()">Kaydet</button>
 
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
     function saveChanges() {
         var rows = document.querySelectorAll("#itemBody tr");
@@ -89,160 +92,3 @@
         .catch(err => alert("Hata: " + err));
     }
 </script>
-
-@* <!-- BİRİMLER (ITMUNITA) -->
-<div class="card mb-3">
-    <div class="card-header">
-        <strong>Birimler</strong>
-    </div>
-
-    <div class="card-body p-0">
-        <table class="table table-bordered table-hover mb-0">
-            <thead class="table-light">
-                <tr>
-                    <th>Birim</th>
-                    <th>Çarpan</th>
-                    <th>Ana Birim</th>
-                    <th style="width:120px;">İşlem</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var unit in Model.Units)
-                {
-                    <tr>
-                        <td>@unit.UnitCode</td>
-                        <td>@unit.ConvFactor</td>
-                        <td>
-                            @(unit.IsMainUnit ? "Evet" : "Hayır")
-                        </td>
-                        <td>
-                            <a class="btn btn-sm btn-primary"
-                               href="@Url.Action("UnitDetail", "Item",
-                                     new {
-                                         itemRef = Model.ItemRef,
-                                         itmUnitARef = unit.ItmUnitARef
-                                     })">
-                                Detay
-                            </a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<!-- SEÇİLEN BİRİM DETAY -->
-@if (Model.SelectedUnit != null)
-{
-    <div class="card mb-3">
-        <div class="card-header">
-            <strong>Birim Detayı</strong>
-        </div>
-
-        <div class="card-body">
-            <div class="row mb-2">
-                <div class="col-md-2"><strong>Birim</strong></div>
-                <div class="col-md-4">@Model.SelectedUnit.UnitCode</div>
-
-                <div class="col-md-2"><strong>Çarpan</strong></div>
-                <div class="col-md-4">@Model.SelectedUnit.ConvFactor</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- BARKODLAR -->
-    <div class="card mb-3">
-        <div class="card-header">
-            <strong>Barkodlar</strong>
-        </div>
-
-        <div class="card-body">
-            <table class="table table-sm table-bordered">
-                <thead>
-                    <tr>
-                        <th>Barkod</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var bc in Model.SelectedUnit.Barcodes)
-                    {
-                        <tr>
-                            <td>@bc.Barcode</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-
-            <form method="post" action="@Url.Action("AddBarcode", "Item")">
-                <input type="hidden" name="ItmUnitARef" value="@Model.SelectedUnit.ItmUnitARef" />
-
-                <div class="row">
-                    <div class="col-md-4">
-                        <input type="text"
-                               name="Barcode"
-                               class="form-control"
-                               placeholder="Yeni barkod giriniz" />
-                    </div>
-                    <div class="col-md-2">
-                        <button class="btn btn-success">Ekle</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- FİYATLAR -->
-    <div class="card mb-3">
-        <div class="card-header">
-            <strong>Fiyatlar</strong>
-        </div>
-
-        <div class="card-body">
-            <table class="table table-sm table-bordered">
-                <thead>
-                    <tr>
-                        <th>Tip</th>
-                        <th>Fiyat</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var prc in Model.SelectedUnit.Prices)
-                    {
-                        <tr>
-                            <td>@(prc.PType == 1 ? "Satın Alma" : "Satış")</td>
-                            <td>@prc.Price</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-
-            <form method="post" action="@Url.Action("AddPrice", "Item")">
-                <input type="hidden" name="ItmUnitARef" value="@Model.SelectedUnit.ItmUnitARef" />
-
-                <div class="row mb-2">
-                    <div class="col-md-3">
-                        <select name="PType" class="form-select">
-                            <option value="1">Satın Alma</option>
-                            <option value="2">Satış</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <input type="text"
-                               name="Price"
-                               class="form-control"
-                               placeholder="Fiyat" />
-                    </div>
-                    <div class="col-md-2">
-                        <button class="btn btn-success">Ekle</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div> 
-} *@
-
-
-
-
-

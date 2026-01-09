@@ -1,6 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 
-namespace WebCrudApp.Models
+namespace WebCrudApp.Models.Client
 
 {
     public class ClientViewModel

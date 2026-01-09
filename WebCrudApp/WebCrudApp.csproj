@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\Media\" />
+    <Folder Include="wwwroot\icon\" />
   </ItemGroup>
 
   <ItemGroup>

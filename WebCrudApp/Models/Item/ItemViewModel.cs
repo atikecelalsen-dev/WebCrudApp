@@ -5,7 +5,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 
-namespace WebCrudApp.Models
+namespace WebCrudApp.Models.Item
 {
     public class ItemViewModel
     {

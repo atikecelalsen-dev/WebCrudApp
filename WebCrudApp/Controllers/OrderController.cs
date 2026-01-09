@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using WebCrudApp.Models;
+using WebCrudApp.Models.Order;
 
 public class OrderController : Controller
 {

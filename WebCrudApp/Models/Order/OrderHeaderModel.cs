@@ -6,7 +6,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 
-namespace WebCrudApp.Models
+namespace WebCrudApp.Models.Order
 {
     public class OrderHeaderModel
     {

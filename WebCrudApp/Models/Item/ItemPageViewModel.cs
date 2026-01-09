@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace WebCrudApp.Models
+namespace WebCrudApp.Models.Item
 {
     public class ItemPageViewModel
     {

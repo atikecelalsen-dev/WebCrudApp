@@ -1,4 +1,4 @@
-﻿using WebCrudApp.Models;
+﻿using WebCrudApp.Models.Order;
 
 public interface IOrderRepository
 {

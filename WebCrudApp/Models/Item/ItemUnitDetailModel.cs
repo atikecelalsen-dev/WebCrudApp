@@ -1,4 +1,4 @@
-﻿namespace WebCrudApp.Models
+﻿namespace WebCrudApp.Models.Item
 {
     public class ItemUnitDetailModel
     {

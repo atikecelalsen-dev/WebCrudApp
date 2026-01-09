@@ -3,7 +3,7 @@ using Microsoft.Data.SqlClient;
 using System.Collections.Generic;
 using System.Data;
 using WebCrudApp.Data;
-using WebCrudApp.Models;
+using WebCrudApp.Models.Item;
 using WebCrudApp.Repository;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 

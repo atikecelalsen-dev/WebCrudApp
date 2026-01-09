@@ -1,4 +1,4 @@
-﻿@model WebCrudApp.Models.ItemPageViewModel
+﻿@model WebCrudApp.Models.Item.ItemPageViewModel
 
 <h2>Malzeme işlemleri</h2>
 <form method="post" id="itemForm" action="javascript:void(0)">
@@ -43,7 +43,8 @@
 
 
 <!-- jQuery -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
      $(document).ready(function () {

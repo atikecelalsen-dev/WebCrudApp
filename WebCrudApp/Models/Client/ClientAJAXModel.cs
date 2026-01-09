@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace WebCrudApp.Models
+namespace WebCrudApp.Models.Client
 {
     public class ClientAJAXModel
     {

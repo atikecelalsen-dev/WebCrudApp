@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Data.SqlClient;
 using System.Data;
 using WebCrudApp.Data;
+using WebCrudApp.Models.Item;
 
 namespace WebCrudApp.Models
 {
