@@ -1,29 +1,29 @@
-﻿<table id="itemTable" class="table table-hover" border="1" style="border-collapse: collapse;">
-    <thead>
-        <tr>
-            <th>LOGICALREF</th>
-            <th>CODE</th>
-            <th>NAME</th>
-            <th>Birim Seti</th>
-            <th>   </th>
-            
+﻿<div id="itemListContainer">
+    <div class="item-header row d-none d-md-flex">
+        <div class="col-2"><strong>ID</strong></div>
+        <div class="col-2"><strong>CODE</strong></div>
+        <div class="col-4"><strong>NAME</strong></div>
+        <div class="col-3"><strong>Birim Seti</strong></div>
+        <div class="col-1"></div>
+    </div>
 
-        </tr>
-    </thead>
-    <tbody id="itemBody">
-        @foreach (var item in Model)
-        {
-            <tr class="rowSelect" data-id="@item.LOGICALREF" data-code="@item.CODE" data-def="@item.NAME">
-                <td>@item.LOGICALREF</td>
-                <td>@item.CODE</td>
-                <td>@item.NAME</td>
-                <td>@item.UNITNAME</td>
-                <td>
-                    <a href="@Url.Action("Index", "ItemDetails", new { logicalRef = item.LOGICALREF })">
-                        Düzenle
-                    </a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+    @foreach (var item in Model)
+    {
+        <div class="list-row rowSelect"
+             data-id="@item.LOGICALREF"
+             data-code="@item.CODE"
+             data-name="@item.NAME"
+             data-unitsetref="@item.UNITSETREF">
+
+            <div class="col-12 col-md-2"><span class="label d-md-none">ID: </span>@item.LOGICALREF</div>
+            <div class="col-12 col-md-2"><span class="label d-md-none">CODE: </span>@item.CODE</div>
+            <div class="col-12 col-md-4"><span class="label d-md-none">NAME: </span>@item.NAME</div>
+            <div class="col-12 col-md-3"><span class="label d-md-none">Birim Seti: </span>@item.UNITNAME</div>
+            <div class="col-12 col-md-1">
+                <a href="@Url.Action("Index", "ItemDetails", new { logicalRef = item.LOGICALREF })">
+                    Düzenle
+                </a>
+            </div>
+        </div>
+    }
+</div>

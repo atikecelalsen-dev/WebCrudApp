@@ -1,79 +1,157 @@
 ﻿@model List<WebCrudApp.Models.Client.ClientViewModel>
 
 <h2>Müşteri İşlemleri</h2>
+
 <form method="post">
-    <!-- GİZLİ ID -->
+
+    <!-- GİZLİ ID (AYNI) -->
     <input type="hidden" name="logicalRef" id="logicalRef" />
-    <div class="form-group">
-        <label>CODE:</label>
-        <input type="text" class="form-control" id="code" name="CODE" value="@ViewBag.Code" placeholder="000" />
-        <small id="codeHelp" class="form-text text-muted">Code must be unique, please check the list.</small>
-    </div>
-    <div class="form-group">
-        <label>DEFINITION:</label>
-        <input type="text" class="form-control" id="definition" name="DEFINITION_" placeholder="Name of the Client" value="@ViewBag.Definition" />
-        <small id="nameHelp" class="form-text text-muted">Please enter the Name of Client.</small>
+
+    <div class="row g-3">
+        <div class="col-12 col-md-6">
+            <label>CODE:</label>
+            <input type="text"
+                   class="form-control"
+                   id="code"
+                   name="CODE"
+                   value="@ViewBag.Code"
+                   placeholder="000" />
+            <small class="text-muted">
+                Code must be unique, please check the list.
+            </small>
+        </div>
+
+        <div class="col-12 col-md-6">
+            <label>İSİM:</label>
+            <input type="text"
+                   class="form-control"
+                   id="definition"
+                   name="DEFINITION_"
+                   value="@ViewBag.Definition"
+                   placeholder="Müşteri İsmi" />
+            <small class="text-muted">
+                Please enter the Name of Client.
+            </small>
+        </div>
     </div>
 
     <br />
 
-    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+    <div class="alert alert-warning">
         <strong>Lütfen yapacağınız işlemi seçin:</strong>
     </div>
 
-
-    <button type="submit" formaction="/Client/Index" class="btn btn-primary">Listele</button>
-    <button type="submit" formaction="/Client/Create" class="btn btn-outline-success">Ekle</button>
-    <button type="submit" formaction="/Client/Index" class="btn btn-secondary">Bul</button>
-    <button type="submit" formaction="/Client/Update" class="btn btn-outline-warning" >Güncelle</button>
-    <button type="submit" formaction="/Client/Delete" class="btn btn-outline-danger">Sil</button>
+    <!-- BUTONLAR (AYNI FORMACTION) -->
+    <div class="row g-2">
+        <div class="col-12 col-md">
+            <button type="submit" formaction="/Client/Index"
+                    class="btn btn-primary w-100">
+                Listele
+            </button>
+        </div>
+        <div class="col-12 col-md">
+            <button type="submit" formaction="/Client/Create"
+                    class="btn btn-outline-success w-100">
+                Ekle
+            </button>
+        </div>
+        <div class="col-12 col-md">
+            <button type="submit" formaction="/Client/Index"
+                    class="btn btn-secondary w-100">
+                Bul
+            </button>
+        </div>
+        <div class="col-12 col-md">
+            <button type="submit" formaction="/Client/Update"
+                    class="btn btn-outline-warning w-100">
+                Güncelle
+            </button>
+        </div>
+        <div class="col-12 col-md">
+            <button type="submit" formaction="/Client/Delete"
+                    class="btn btn-outline-danger w-100">
+                Sil
+            </button>
+        </div>
+    </div>
 
 </form>
 
 <hr />
 
-<div style="max-height: 500px; overflow-y: auto; border: 1px">
-        <table class="table table-hover" border="1" style=" border-collapse: collapse;">
-            <thead>
-                <tr>
-                <th scope="col">LOGICALREF</th>
-                <th scope="col">CODE</th>
-                <th scope="col">DEFINITION</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                     {
-                    <tr class="rowSelect"
+<!-- =====================================================
+     DESKTOP / TABLET : ORİJİNAL TABLO (AYNI MANTIK)
+     ===================================================== -->
+<div class="d-none d-md-block"
+     style="max-height: 500px; overflow-y: auto; border: 1px solid #ddd">
+
+    <table class="table table-hover" border="1" style="border-collapse:collapse">
+        <thead>
+            <tr>
+                <th>LOGICALREF</th>
+                <th>CODE</th>
+                <th>İSİM</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr class="rowSelect"
+                    style="cursor:pointer"
                     data-id="@item.LOGICALREF"
                     data-code="@item.CODE"
                     data-def="@item.DEFINITION_">
+
                     <td>@item.LOGICALREF</td>
                     <td>@item.CODE</td>
                     <td>@item.DEFINITION_</td>
-                    </tr>
-                    }
-
-            </tbody>
-
-
-        </table>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>
 
+<!-- MOBILE : CARD-->
+<div class="d-block d-md-none">
+    <div class="row g-3">
+        @foreach (var item in Model)
+        {
+            <div class="col-12">
+                <div class="card rowSelect"
+                     style="cursor:pointer"
+                     data-id="@item.LOGICALREF"
+                     data-code="@item.CODE"
+                     data-def="@item.DEFINITION_">
+
+                    <div class="card-body">
+                        <h5 class="card-title mb-2">@item.CODE</h5>
+
+                        <p class="mb-1">
+                            <strong>ID:</strong> @item.LOGICALREF
+                        </p>
+
+                        <p class="mb-0">
+                            <strong>İsim:</strong> @item.DEFINITION_
+                        </p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
-<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
     $(document).on("click", ".rowSelect", function () {
 
-        $(".rowSelect").removeClass("table-active");
-        $(this).addClass("table-active");
+        $(".rowSelect").removeClass("table-active border border-primary");
+        $(this).addClass("table-active border border-primary");
 
         $("#logicalRef").val($(this).data("id"));
         $("#code").val($(this).data("code"));
         $("#definition").val($(this).data("def"));
 
     });
-
-
 </script>

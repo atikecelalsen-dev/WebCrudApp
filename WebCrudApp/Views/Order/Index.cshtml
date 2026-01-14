@@ -9,51 +9,69 @@
 <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Siparişler</h2>
-        <a href="/Order/Create" class="btn btn-primary btn">Yeni Sipariş</a>
+        <a href="/Order/Create" class="btn btn-primary">Yeni Sipariş</a>
     </div>
 
-    <div class="table-responsive">
-        <table class="table table-hover" border="1" style="border-collapse: collapse;>
-            <thead class="table-dark">
-                <tr>
-                    <th>Sipariş No</th>
-                    <th>Tarih</th>
-                    <th>Müşteri</th>
-                    <th>Net Tutar</th>
+    <!-- HEADER (Desktop) -->
+    <div class="row fw-bold border-bottom pb-2 mb-2 d-none d-md-flex">
+        <div class="col-md-2">Sipariş No</div>
+        <div class="col-md-2">Tarih</div>
+        <div class="col-md-3">Müşteri</div>
+        <div class="col-md-2">Net Tutar</div>
+        <div class="col-md-3">İşlemler</div>
+    </div>
 
-                    <th>İşlemler</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (Model != null && Model.Any())
-                {
-                    foreach (var item in Model)
-                    {
-                        
-                        <tr data-id="@item.LOGICALREF" style="cursor:pointer">
-                            <td>@item.FICHENO</td>
-                            <td>@item.DATE_.ToString("yyyy-MM-dd")</td>
-                            <td>@item.CLIENTNAME</td>
-                            <td>@item.NETTOTAL.ToString("N2")</td>
-                            
-                            <td> 
-                                <button type="button" class="btn btn-secondary"
+    <!-- LIST -->
+    <div id="orderList">
+        @if (Model != null && Model.Any())
+        {
+            foreach (var item in Model)
+            {
+                <div class="order-row row align-items-center border rounded p-2 mb-2"
+                     data-id="@item.LOGICALREF"
+                     style="cursor:pointer">
+
+                    <div class="col-12 col-md-2">
+                        <span class="d-md-none fw-bold">Sipariş No: </span>
+                        @item.FICHENO
+                    </div>
+
+                    <div class="col-12 col-md-2">
+                        <span class="d-md-none fw-bold">Tarih: </span>
+                        @item.DATE_.ToString("yyyy-MM-dd")
+                    </div>
+
+                    <div class="col-12 col-md-3">
+                        <span class="d-md-none fw-bold">Müşteri: </span>
+                        @item.CLIENTNAME
+                    </div>
+
+                    <div class="col-12 col-md-2">
+                        <span class="d-md-none fw-bold">Net Tutar: </span>
+                        @item.NETTOTAL.ToString("N2")
+                    </div>
+
+                    <div class="col-12 col-md-3 mt-2 mt-md-0">
+                        <button type="button"
+                                class="btn btn-secondary btn-sm me-2"
                                 onclick="location.href='/Order/Edit/@item.LOGICALREF'">
-                                Düzenle</button>
-                         
+                            Düzenle
+                        </button>
 
-                                <button type="button" class="btn btn-danger removeLine">Sil</button></td>
-                        </tr>
-                    }
-                }
-                else
-                {
-                    <tr>
-                        <td colspan="4" class="text-center">Hiç sipariş yok</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+                        <button type="button"
+                                class="btn btn-danger btn-sm removeLine">
+                            Sil
+                        </button>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="text-center text-muted p-3">
+                Hiç sipariş yok
+            </div>
+        }
     </div>
 </div>
 
@@ -61,33 +79,29 @@
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-        $('tbody').on('click', '.removeLine', function(e){
-        
-        var row = $(this).closest('tr');
-        var logicalRef = row.data('id'); 
+    // DELETE – AYNI AJAX, AYNI PARAMETRE
+    $('#orderList').on('click', '.removeLine', function (e) {
+        e.stopPropagation();
 
-        if(!confirm('Bu siparişi silmek istediğinize emin misiniz?')) return;
+        var row = $(this).closest('.order-row');
+        var logicalRef = row.data('id');
+
+        if (!confirm('Bu siparişi silmek istediğinize emin misiniz?')) return;
 
         $.ajax({
             url: '/Order/DeleteOrder',
             type: 'POST',
             data: { id: logicalRef },
-            success: function(response){
-                if(response.success){
+            success: function (response) {
+                if (response.success) {
                     row.remove();
-                    window.location.href="/Order/Index";
                 } else {
                     alert(response.message);
                 }
             },
-            error: function(){
+            error: function () {
                 alert('Silme sırasında hata oluştu.');
             }
         });
     });
-
-
-
-
-
 </script>

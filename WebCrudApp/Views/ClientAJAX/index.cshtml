@@ -1,74 +1,49 @@
 ﻿@model List<WebCrudApp.Models.Client.ClientAJAXModel>
 
 <h2>Müşteri İşlemleri</h2>
+
 <form method="post">
-    <!-- GİZLİ ID -->
     <input type="hidden" name="logicalRef" id="logicalRef" />
+
     <div class="form-group">
         <label>CODE:</label>
         <input type="text" class="form-control" id="code" name="CODE" value="@ViewBag.Code" placeholder="000" />
         <small id="codeHelp" class="form-text text-muted">Code must be unique, please check the list.</small>
     </div>
+
     <div class="form-group">
-        <label>DEFINITION:</label>
+        <label>İSİM:</label>
         <input type="text" class="form-control" id="definition" name="DEFINITION_" placeholder="Name of the Client" value="@ViewBag.Definition" />
         <small id="nameHelp" class="form-text text-muted">Please enter the Name of Client.</small>
     </div>
 
-    <br/>
-
-    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-        <strong>Lütfen yapacağınız işlemi seçin:</strong>
-    </div>
-
-
 </form>
+
+<div class="alert alert-warning" role="alert">
+    <strong>Lütfen yapacağınız işlemi seçin:</strong>
+</div>
+
 <button id="btnLoad" type="button" class="btn btn-primary">Listele</button>
 <button id="btnCreate" type="button" class="btn btn-outline-success">Ekle</button>
 <button id="btnSearch" type="button" class="btn btn-secondary">Bul</button>
 <button id="btnUpdate" type="button" class="btn btn-outline-warning">Güncelle</button>
 <button id="btnDelete" type="button" class="btn btn-outline-danger">Sil</button>
+
 <hr />
 
-<div style="max-height: 500px; overflow-y: auto; border: 1px">
-        <table class="table table-hover" border="1" style=" border-collapse: collapse;">
-            <thead>
-                <tr>
-                <th scope="col">LOGICALREF</th>
-                <th scope="col">CODE</th>
-                <th scope="col">DEFINITION</th>
-                </tr>
-            </thead>
-        <tbody id="clientBody">
-            
-            </tbody> 
-
-
-        </table>
-</div>
+<!-- Liste div container -->
+<div id="clientListContainer"></div>
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
     $(document).ready(function () {
-         $("#btnLoad").click();
-      });
+        $("#btnLoad").click();
+    });
 
-
-          function bindRowSelect(){
-        $("#clientTable tbody tr.rowSelect").off("click").on("click", function(){
-            $("#clientTable tbody tr.rowSelect").removeClass("table-active");
-            $(this).addClass("table-active");
-
-            $("#logicalRef").val($(this).data("id"));
-            $("#code").val($(this).data("code"));
-            $("#definition").val($(this).data("def"));
-        });
-    }
- 
-   //  🖱 Satır seçimi
-    $(document).on("click", ".rowSelect", function(){
+    // Row select
+    $(document).on("click", ".rowSelect", function () {
         $(".rowSelect").removeClass("table-active");
         $(this).addClass("table-active");
 
@@ -77,75 +52,67 @@
         $("#definition").val($(this).data("def"));
     });
 
-    //BULMA FONKSIYONU
-        $("#btnSearch").click(function(){
+    // Listele
+    $("#btnLoad").click(function () {
+        $.get("/ClientAJAX/GetClientsPartial", function (html) {
+            $("#clientListContainer").html(html);
+        });
+    });
+
+    // Bul
+    $("#btnSearch").click(function () {
         $.get("/ClientAJAX/SearchPartial", {
             code: $("#code").val(),
             definition: $("#definition").val()
-        }, function(html){
-            $("#clientBody").parent().html(html); // table komple değişiyor
-            bindRowSelect(); // satır seçimi için eventleri yeniden ata
+        }, function (html) {
+            $("#clientListContainer").html(html);
         });
     });
 
-        
+    // Create
+    $("#btnCreate").on("click", function (e) {
+        e.preventDefault();
 
-        //LİSTELE BUTONU
-        $("#btnLoad").click(function(){
-        $.get("/ClientAJAX/GetClientsPartial", function(html){
-            $("#clientBody").parent().html(html); // tbody’nin parent’i table
-            bindRowSelect();
+        $.ajax({
+            url: '/ClientAJAX/Create',
+            type: 'POST',
+            data: {
+                CODE: $("#code").val(),
+                DEFINITION_: $("#definition").val()
+            },
+            success: function () {
+                alert("Eklendi");
+                $("#btnLoad").click();
+            },
+            error: function (err) {
+                console.log(err);
+                alert("Create hatası");
+            }
         });
     });
 
-
-        // ➕ CREATE
-        $("#btnCreate").on("click", function (e) {
-            e.preventDefault();
-
-            $.ajax({
-                url: '/ClientAJAX/Create',
-                type: 'POST',
-                data: {
-                    CODE: $("#code").val(),
-                    DEFINITION_: $("#definition").val()
-                },
-                success: function () {
-                    alert("Eklendi");
-                    $("#btnLoad").click(); // 🔥 otomatik yenile
-                },
-                error: function (err) {
-                    console.log(err);
-                    alert("Create hatası");
-                }
-            });
-        });
-
-       
-
-
-    //UPDATE
-            $("#btnUpdate").click(function(){
+    // Update
+    $("#btnUpdate").click(function () {
         const id = $("#logicalRef").val();
-        if(!id){ alert("Lütfen güncellenecek kaydı seçin"); return; }
+        if (!id) { alert("Lütfen güncellenecek kaydı seçin"); return; }
 
         $.post("/ClientAJAX/Update", {
             LOGICALREF: id,
             CODE: $("#code").val(),
             DEFINITION_: $("#definition").val()
-        }, function(){
+        }, function () {
             alert("Güncellendi");
             $("#btnLoad").click();
         });
     });
 
-    // ➡️ DELETE
-        $("#btnDelete").click(function(){
+    // Delete
+    $("#btnDelete").click(function () {
         const id = $("#logicalRef").val();
-        if(!id){ alert("Lütfen silinecek kaydı seçin"); return; }
-        if(!confirm("Bu kaydı silmek istediğinize emin misiniz?")) return;
+        if (!id) { alert("Lütfen silinecek kaydı seçin"); return; }
+        if (!confirm("Bu kaydı silmek istediğinize emin misiniz?")) return;
 
-        $.post("/ClientAJAX/Delete", { id: id }, function(){
+        $.post("/ClientAJAX/Delete", { id: id }, function () {
             alert("Silindi");
             $("#btnLoad").click();
             $("#logicalRef").val('');
@@ -153,7 +120,4 @@
             $("#definition").val('');
         });
     });
-
-
-         
 </script>

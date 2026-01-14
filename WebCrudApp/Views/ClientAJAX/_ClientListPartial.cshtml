@@ -1,19 +1,20 @@
-﻿<table id="clientTable" class="table table-hover" border="1" style="border-collapse: collapse;">
-    <thead>
-        <tr>
-            <th>LOGICALREF</th>
-            <th>CODE</th>
-            <th>DEFINITION</th>
-        </tr>
-    </thead>
-    <tbody id="clientBody">
-        @foreach (var item in Model)
-        {
-            <tr class="rowSelect" data-id="@item.LOGICALREF" data-code="@item.CODE" data-def="@item.DEFINITION_">
-                <td>@item.LOGICALREF</td>
-                <td>@item.CODE</td>
-                <td>@item.DEFINITION_</td>
-            </tr>
-        }
-    </tbody>
-</table>
+﻿<div id="clientListContainer">
+    <div class="client-header row d-none d-md-flex">
+        <div class="col-2"><strong>ID</strong></div>
+        <div class="col-3"><strong>CODE</strong></div>
+        <div class="col-7"><strong>İSİM</strong></div>
+    </div>
+
+    @foreach (var item in Model)
+    {
+        <div class="list-row rowSelect"
+             data-id="@item.LOGICALREF"
+             data-code="@item.CODE"
+             data-def="@item.DEFINITION_">
+
+            <div class="col-12 col-md-2"><span class="label d-md-none">ID: </span>@item.LOGICALREF</div>
+            <div class="col-12 col-md-3"><span class="label d-md-none">CODE: </span>@item.CODE</div>
+            <div class="col-12 col-md-7"><span class="label d-md-none">İSİM: </span>@item.DEFINITION_</div>
+        </div>
+    }
+</div>

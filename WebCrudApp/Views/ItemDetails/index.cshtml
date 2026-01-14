@@ -1,7 +1,8 @@
 ﻿@model WebCrudApp.Models.Item.ItemViewModel
 @{
 }
-<h3 style="margin-top:10px; margin-bottom:20px; ">Malzeme Verilerini Düzenleyin : </h3>
+
+<h3 style="margin-top:10px; margin-bottom:20px;">Malzeme Verilerini Düzenleyin :</h3>
 
 <!-- ÜRÜN ÜST BİLGİ -->
 <div class="card mb-3">
@@ -10,75 +11,82 @@
     </div>
     <div class="card-body">
         <div class="row mb-2">
-            <div class="col-md-1"><strong>Kod: </strong></div>
-            <div class="col-md-3">@Model.CODE</div>
-
-            <div class="col-md-1"><strong>Ad: </strong></div>
-            <div class="col-md-3">@Model.NAME</div>
-
-            <div class="col-md-1"><strong>UnitName: </strong></div>
-            <div class="col-md-3">@Model.UNITNAME</div>
+            <div class="col-md-2"><strong>Kod:</strong> @Model.CODE</div>
+            <div class="col-md-3"><strong>Ad:</strong> @Model.NAME</div>
+            <div class="col-md-3"><strong>UnitName:</strong> @Model.UNITNAME</div>
         </div>
     </div>
 </div>
 
+<!-- Editable Div Listesi -->
 <div class="card mb-3">
-    <table id="itemTable" class="table table-hover" border="1" style="border-collapse: collapse;">
-        <thead>
-            <tr>
-                <th>ITEM NAME</th>
-                <th>LOGICALREF</th>
-                <th>ITEMREF</th> 
-                <th>UNITLINEREF</th>
-                <th>UNITNAME</th>
-                <th>BARCODE</th>
-                <th>PURCHASEPRICE</th>
-                <th>SALEPRICE</th>
-                <th>   </th>
-            </tr>
-        </thead>
-        <tbody id="itemBody">
-            @foreach (var detail in Model.UnitDetails)
-            {
-                <tr data-itemref="@detail.ITEMREF"
-                    data-unitlineref="@detail.UNITLINEREF"
-                    data-itmunitaref="@(detail.ITMUNITAREF ?? 0)">
+    <div class="list-header row d-none d-md-flex">
+        <div class="col-3"><strong>ITEM NAME</strong></div>
+        <div class="col-1"><strong>LOGICALREF</strong></div>
+        <div class="col-1"><strong>ITEMREF</strong></div>
+        <div class="col-1"><strong>UNITLINEREF</strong></div>
+        <div class="col-2"><strong>UNITNAME</strong></div>
+        <div class="col-2"><strong>BARCODE</strong></div>
+        <div class="col-1"><strong>PURCHASEPRICE</strong></div>
+        <div class="col-1"><strong>SALEPRICE</strong></div>
+    </div>
 
-                    <td>@detail.ITEMNAME</td>
-                    <td>@detail.LOGICALREF</td>
-                    <td>@detail.ITEMREF</td>
-                    <td>@detail.UNITLINEREF</td>
-                    <td>@detail.UNITNAME</td>
-                    
-                    <td contenteditable="true" class="editable" data-field="BARCODE">@detail.BARCODE</td>
-                    <td contenteditable="true" class="editable" data-field="PURCHASEPRICE">@detail.PURCHASEPRICE</td>
-                    <td contenteditable="true" class="editable" data-field="SALEPRICE">@detail.SALEPRICE</td>
-                   
-                </tr>
-            }
-        </tbody>
-    </table>
+    <div id="itemListContainer">
+        @foreach (var detail in Model.UnitDetails)
+        {
+            <div class="list-row rowSelect d-flex flex-wrap p-2 mb-2 border rounded align-items-center"
+                 data-itemref="@detail.ITEMREF"
+                 data-unitlineref="@detail.UNITLINEREF"
+                 data-itmunitaref="@(detail.ITMUNITAREF ?? 0)">
+
+                <div class="col-12 col-md-3"><span class="label d-md-none">Item Name: </span>@(detail.ITEMNAME ?? "")</div>
+                <div class="col-12 col-md-1"><span class="label d-md-none">LogicalRef: </span>@(detail.LOGICALREF?.ToString() ?? "")</div>
+                <div class="col-12 col-md-1"><span class="label d-md-none">ItemRef: </span>@(detail.ITEMREF?.ToString() ?? "")</div>
+                <div class="col-12 col-md-1"><span class="label d-md-none">UnitLineRef: </span>@(detail.UNITLINEREF?.ToString() ?? "")</div>
+                <div class="col-12 col-md-2"><span class="label d-md-none">UnitName: </span>@(detail.UNITNAME ?? "")</div>
+
+                <!-- Editable hücreler -->
+                <div class="col-12 col-md-2">
+                    <span class="label d-md-none font-weight-bold">Barcode</span>
+                    <div class="editable-cell form-control" contenteditable="true" data-field="BARCODE">
+                        @(detail.BARCODE ?? "")</div>
+                </div>
+                <div class="col-12 col-md-1">
+                    <span class="label d-md-none font-weight-bold">Purchase Price</span>
+                    <div class="editable-cell form-control" contenteditable="true" data-field="PURCHASEPRICE">
+                        @(detail.PURCHASEPRICE?.ToString() ?? "0")
+                    </div>
+                </div>
+                <div class="col-12 col-md-1">
+                    <span class="label d-md-none font-weight-bold">Sale Price</span>
+                    <div class="editable-cell form-control"contenteditable="true"data-field="SALEPRICE"> 
+                        @(detail.SALEPRICE?.ToString() ?? "0")
+                    </div>
+                </div>
+
+            </div>
+        }
+    </div>
 </div>
 
-<button type="button" onclick="saveChanges()">Kaydet</button>
+<button type="button" onclick="saveChanges()" class="btn btn-primary">Kaydet</button>
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
     function saveChanges() {
-        var rows = document.querySelectorAll("#itemBody tr");
+        var rows = document.querySelectorAll("#itemListContainer .list-row");
         var data = [];
-        
+
         rows.forEach(row => {
             var obj = {
                 ITEMREF: parseInt(row.dataset.itemref),
                 ITMUNITAREF: Number(row.dataset.itmunitaref) || 0,
-                    UNITLINEREF: parseInt(row.dataset.unitlineref),
-                    BARCODE: row.querySelector('[data-field="BARCODE"]').innerText.trim(),
-                    PURCHASEPRICE: parseFloat(row.querySelector('[data-field="PURCHASEPRICE"]').innerText) || 0,
-                    SALEPRICE: parseFloat(row.querySelector('[data-field="SALEPRICE"]').innerText) || 0,
-                   
+                UNITLINEREF: parseInt(row.dataset.unitlineref),
+                BARCODE: row.querySelector('[data-field="BARCODE"]').innerText.trim(),
+                PURCHASEPRICE: parseFloat(row.querySelector('[data-field="PURCHASEPRICE"]').innerText) || 0,
+                SALEPRICE: parseFloat(row.querySelector('[data-field="SALEPRICE"]').innerText) || 0
             };
             data.push(obj);
         });
@@ -91,4 +99,10 @@
         .then(res => res.ok ? alert("Güncellendi") : alert("Hata"))
         .catch(err => alert("Hata: " + err));
     }
+
+    // Row select çalışması
+    $(document).on("click", ".rowSelect", function() {
+        $(".rowSelect").removeClass("table-active");
+        $(this).addClass("table-active");
+    });
 </script>

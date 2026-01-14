@@ -1,147 +1,117 @@
 ﻿@model WebCrudApp.Models.Item.ItemPageViewModel
 
 <h2>Malzeme işlemleri</h2>
+
 <form method="post" id="itemForm" action="javascript:void(0)">
-    <!-- GİZLİ ID -->
     <input type="hidden" name="logicalRef" id="logicalRef" />
+
     <div class="form-group">
         <label>CODE:</label>
         <input type="text" class="form-control" id="code" name="CODE" value="@ViewBag.Code" placeholder="000" />
         <small id="codeHelp" class="form-text text-muted">Code must be unique, please check the list.</small>
     </div>
+
     <div class="form-group">
         <label>NAME:</label>
         <input type="text" class="form-control" id="name" name="NAME" placeholder="Name of the Item" value="@ViewBag.Name" />
         <small id="nameHelp" class="form-text text-muted">Please enter the Name of Item.</small>
-        
+    </div>
+
     <div class="form-group">
         <label>UNIT SET:</label>
         @Html.DropDownListFor(
         m => m.Item.UNITSETREF,
-                    Model.UnitSets,
-                    "-- Seçiniz --",
-                    new { id = "UNITSETREF", @class = "form-control" })
-
+                Model.UnitSets,
+                "-- Seçiniz --",
+                new { id = "UNITSETREF", @class = "form-control" }
+                )
     </div>
-    <br />
-    
 </form>
+
+<div class="alert alert-warning" role="alert">
+    <strong>Lütfen yapacağınız işlemi seçin:</strong>
+</div>
 
 <button id="btnLoad" type="button" class="btn btn-primary">Listele</button>
 <button id="btnCreate" type="button" class="btn btn-outline-success">Ekle</button>
 <button id="btnSearch" type="button" class="btn btn-secondary">Bul</button>
 <button id="btnUpdate" type="button" class="btn btn-outline-warning">Güncelle</button>
 <button id="btnDelete" type="button" class="btn btn-outline-danger">Sil</button>
+
 <hr />
 
-<div style="max-height: 500px; overflow-y: auto; border: 1px">
-    <table class="table table-hover" border="1" style=" border-collapse: collapse;">
-        <tbody id="itemBody">
-        </tbody>
-    </table>
-</div>
+<!-- Liste div container -->
+<div id="itemListContainer"></div>
 
-
-<!-- jQuery -->
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-     $(document).ready(function () {
-          $("#btnLoad").click();
-          $("#itemForm").on("submit", function (e) {
+    $(document).ready(function () {
+        $("#btnLoad").click();
+
+        $("#itemForm").on("submit", function(e){
             e.preventDefault();
         });
-
-
-       });
-
-           function bindRowSelect(){
-         $("#itemTable tbody tr.rowSelect").off("click").on("click", function(){
-             $("#itemTable tbody tr.rowSelect").removeClass("table-active");
-             $(this).addClass("table-active");
-
-             $("#logicalRef").val($(this).data("id"));
-             $("#code").val($(this).data("code"));
-             $("#name").val($(this).data("name"));
-         });
-     }
-    
-    //  🖱 Satır seçimi
-     $(document).on("click", ".rowSelect", function(){
-         $(".rowSelect").removeClass("table-active");
-         $(this).addClass("table-active");
-
-         $("#logicalRef").val($(this).data("id"));
-         $("#code").val($(this).data("code"));
-         $("#name").val($(this).data("name"));
-     });
-
-     //BULMA FONKSIYONU
-         $("#btnSearch").click(function(){
-        const code = $("#code").val();
-        const name = $("#name").val();
-        const unitSetRef = $("#UNITSETREF").val(); // DropDown’dan değer al
-
-    $.get("/Item/SearchPartial", {
-        code: code,
-        name: name,
-        unitSetRef: unitSetRef   // backend’e gönder
-    }, function(html){
-        $("#itemBody").parent().html(html); // table komple değişiyor
-        bindRowSelect(); // satır seçimi için eventleri yeniden ata
     });
-     });
 
+    // Row select
+    $(document).on("click", ".rowSelect", function () {
+        $(".rowSelect").removeClass("table-active");
+        $(this).addClass("table-active");
 
+        $("#logicalRef").val($(this).data("id"));
+        $("#code").val($(this).data("code"));
+        $("#name").val($(this).data("name"));
+        $("#UNITSETREF").val($(this).data("unitsetref"));
+    });
 
-         //LİSTELE BUTONU
-         $("#btnLoad").click(function(){
-         $.get("/Item/GetItemsPartial", function(html){
-             $("#itemBody").parent().html(html); // tbody’nin parent’i table
-             bindRowSelect();
-         });
-     });
+    // Listele
+    $("#btnLoad").click(function () {
+        $.get("/Item/GetItemsPartial", function (html) {
+            $("#itemListContainer").html(html);
+        });
+    });
 
+    // Bul
+    $("#btnSearch").click(function () {
+        $.get("/Item/SearchPartial", {
+            code: $("#code").val(),
+            name: $("#name").val(),
+            unitSetRef: $("#UNITSETREF").val()
+        }, function (html) {
+            $("#itemListContainer").html(html);
+        });
+    });
 
-         // ➕ CREATE
-         $("#btnCreate").on("click", function (e) {
-             e.preventDefault();
+    // Create
+    $("#btnCreate").on("click", function () {
+        $.ajax({
+            url: '/Item/Create',
+            type: 'POST',
+            data: {
+                CODE: $("#code").val(),
+                NAME: $("#name").val(),
+                UNITSETREF: $("#UNITSETREF").val()
+            },
+            success: function () {
+                alert("Eklendi");
+                $("#btnLoad").click();
+            },
+            error: function (err) {
+                console.log(err);
+                alert("Create hatası");
+            }
+        });
+    });
 
-             $.ajax({
-                 url: '/Item/Create',
-                 type: 'POST',
-                 data: {
-                     CODE: $("#code").val(),
-                     NAME: $("#name").val(),
-                     UNITSETREF: $("#UNITSETREF").val()
-                 },
-                 success: function () {
-                     alert("Eklendi");
-                     $("#btnLoad").click(); // 🔥 otomatik yenile
-                 },
-                 error: function (err) {
-                     console.log(err);
-                     alert("Create hatası");
-                 }
-             });
-         });
-
-
-
-
-     //UPDATE
-             $("#btnUpdate").click(function () {
+    // Update
+    $("#btnUpdate").click(function () {
         const id = $("#logicalRef").val();
-        if (!id) {
-            alert("Lütfen güncellenecek kaydı seçin");
-            return;
-        }
-        const unitSetRef = $("#UNITSETREF").val();  // burası HTML DropDown ID ile aynı olmalı
-            if (!unitSetRef) {
-                alert("Lütfen bir birim set seçin");
-            return;
-        }
+        if (!id) { alert("Lütfen güncellenecek kaydı seçin"); return; }
+
+        const unitSetRef = $("#UNITSETREF").val();
+        if (!unitSetRef) { alert("Lütfen bir birim set seçin"); return; }
 
         $.post("/Item/Update", {
             LOGICALREF: id,
@@ -157,11 +127,9 @@
             alert("Update başarısız: " + xhr.responseText);
         });
     });
-         
 
-     // ➡️ DELETE
-            $(document).on("click", "#btnDelete", function () {
-
+    // Delete
+    $("#btnDelete").click(function () {
         const id = $("#logicalRef").val();
         if (!id) { alert("Lütfen silinecek kaydı seçin"); return; }
         if (!confirm("Bu kaydı silmek istediğinize emin misiniz?")) return;
@@ -173,13 +141,10 @@
                 $("#logicalRef").val('');
                 $("#code").val('');
                 $("#name").val('');
+                $("#UNITSETREF").val('');
             })
             .fail(function () {
                 alert("Silme başarısız");
             });
     });
-
-        
-
-
 </script>
