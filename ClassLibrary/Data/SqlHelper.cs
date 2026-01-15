@@ -1,7 +1,7 @@
 ﻿using System.Data;
 using Microsoft.Data.SqlClient;
 
-namespace WebCrudApp.Data
+namespace Library.Data
 {
     public static class SqlHelper
     {

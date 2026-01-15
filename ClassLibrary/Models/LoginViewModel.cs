@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace WebCrudApp.Models
+namespace Library.Models
 {
     public class LoginViewModel
     {

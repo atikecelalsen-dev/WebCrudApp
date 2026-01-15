@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="ClassLibrary/Library.csproj" Id="d0f3fbdd-821c-493c-a34d-c53634ff51c4" />
   <Project Path="WebCrudApp/WebCrudApp.csproj" />
 </Solution>

@@ -1,4 +1,4 @@
-﻿@model WebCrudApp.Models.Order.OrderCreateViewModel
+﻿@model Library.Models.Order.OrderCreateViewModel
 
 @{
     bool isEdit = Model.Header.LOGICALREF > 0;
@@ -22,7 +22,7 @@
                     m => m.Header.TRCODE,
                                         Model.OrderTypes,
                                         "-- Seçiniz --",
-                                        new { @class = "form-control" })
+                                        new { @class = "form-control", id = "orderTypeSelect" })
                 </div>
                 <div class="form-group">
                     <label>Tarih:</label>
@@ -300,10 +300,8 @@
                     <thead>
                         <tr>
                             <th>Kodu</th>
-                            <th>Adı</th>
-                            <th>Fiili Stok</th>
-                            <th>Gerçek Stok</th>
-                            <th>Sevkedilebilir Stok</th>
+                            <th>Ürün Adı</th>
+                            <th>Stok</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -313,8 +311,6 @@
                                 <td>@item.Code</td>
                                 <td>@item.Text</td>
                                 <td>@item.OnHand</td>
-                                <td>@item.RealStock</td>
-                                <td>@item.ShippableStock</td>
                             </tr>
                         }
                     </tbody>
@@ -332,6 +328,7 @@
 <script>
     let lineIndex = $(".line-row").length;
     const productUnits = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.ProductUnits));
+
 
     $(document).ready(function () {
           const dbDiscount = parseFloat($("#TOTALDISCOUNTS").val()) || 0;
@@ -390,6 +387,52 @@ function fillUnits(productSelect) {
             });
         }
 }
+
+    function updateLinePrice(row) {
+
+        const itemRef = row.find(".productSelect").val();
+        const uomRef = row.find("input[name$='.UOMREF']").val();
+        const orderType = $("#orderTypeSelect").val();
+
+        if (!itemRef || !uomRef || !orderType) return;
+
+        $.get("/Order/GetPrice", {
+            itemRef: itemRef,
+            uomRef: uomRef,
+            orderType: orderType
+        }, function (price) {
+            row.find("input[name$='.PRICE']").val(price);
+            recalcTotals();
+        });
+    }
+    $("#orderTypeSelect").on("change", function () {
+
+        let hasAnyProduct = false;
+
+        $("#lineItemsBody .line-row").each(function () {
+            const itemRef = $(this).find(".productSelect").val();
+            if (itemRef) hasAnyProduct = true;
+        });
+
+        if (!hasAnyProduct) return;
+
+        alert("Sipariş türü değiştirildi. Birim fiyatlar güncellenecektir.");
+
+        $("#lineItemsBody .line-row").each(function () {
+            updateLinePrice($(this));
+        });
+    });
+        $("#lineItemsBody").on("change", ".unitSelect", function () {
+
+        const row = $(this).closest(".line-row");
+        const [uomRef, usRef] = $(this).val().split("|");
+
+        row.find("input[name$='.UOMREF']").val(uomRef);
+        row.find("input[name$='.USREF']").val(usRef);
+
+        updateLinePrice(row);
+    });
+
 
 
       // Yeni satır ekleme 
@@ -606,247 +649,3 @@ $("#addLineItem").click(function () {
 
     
 </script>
-
-@*<script>
-  let lineIndex = 1;
-  const productUnits = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.ProductUnits));
-        
-  $(document).ready(function () {
-        const dbDiscount = parseFloat($("#TOTALDISCOUNTS").val()) || 0;
-        console.log("DB Discount =", dbDiscount);
-    if (dbDiscount > 0) {
-        $("#discountValue").val(dbDiscount);
-        $("#discountType").val("amount"); // LOGO mantığı
-    }
-  
-    $(".productSelect").each(function () {
-            const select = $(this);
-            const stockRef = select.data("selected");
-
-            if (!stockRef) return;
-            const itemRow = $("#itemModalTable tr[data-ref='" + stockRef + "']");
-            const itemName = itemRow.data("name");
-
-            select
-                .empty()
-                .append(`<option value="${stockRef}" selected>${itemName}</option>`);
-            fillUnits(this);
-
-            const row = select.closest("tr");
-            const unitSelect = row.find(".unitSelect");
-
-            const uom = unitSelect.data("uom");
-            const us = unitSelect.data("us");
-
-            if (uom && us) {
-                unitSelect.val(`${uom}|${us}`);
-            }
-        });
-
-        recalcTotals();
-    });
-
- function fillUnits(productSelect) {
-    const row = $(productSelect).closest(".line-row");
-    const unitSelect = row.find(".unitSelect");
-    const productId = parseInt($(productSelect).val(), 10);
-
-    unitSelect.empty().append('<option value="">-- Seçiniz --</option>');
-
-    if (productUnits && productUnits[productId]) {
-        productUnits[productId].forEach(u => {
-            unitSelect.append(`<option value="${u.Value}">${u.Text}</option>`);
-        });
-    }
-}
-
-
-    // //Ürün seçmek için Modal açıyoruz. 
-    $(document).on('focus', '.productSelect', function () {
-        window.currentDropdown = this;
-        $('#itemModal').modal('show');
-    });
-
-    $(document).on('click', '.selectable-item', function () {
-        const ref = $(this).data('ref');
-        const name = $(this).data('name');
-
-        const select = window.currentDropdown;
-        $(select).empty().append(`<option value="${ref}" selected>${name}</option>`);
-
-        fillUnits(select);
-        $('#itemModal').modal('hide');
-    });
-
-     
-    // Satır sil
-    $("#lineItemsBody").on("click", ".removeLine", function () {
-        if (!confirm("Satır silinsin mi?")) return;
-        $(this).closest(".line-row").remove();
-        recalcTotals();
-    });
-
-    //Ürün seçildiğinde birimleri doldur 
-    
-    $(document).on("change", ".productSelect", function () {
-        fillUnits(this);
-    });
-
-    $("#lineItemsBody").on("change", ".unitSelect", function () {
-        const row = $(this).closest(".line-row");
-        const [uom, us] = $(this).val().split("|");
-        row.find("input[name$='.UOMREF']").val(uom);
-        row.find("input[name$='.USREF']").val(us);
-    });
-    $("#lineItemsBody .line-row").each(function () {
-        let qty = parseFloat($(this).find("input[name$='.AMOUNT']").val()) || 0;
-        ...
-    });
-  
-    function recalcTotals() {
-        let gross = 0;
-        let totalVAT = 0;
-
-        $("#lineItemsBody tr").each(function () {
-            let qty = parseFloat($(this).find("input[name$='.AMOUNT']").val()) || 0;
-            let price = parseFloat($(this).find("input[name$='.PRICE']").val()) || 0;
-            let vat = parseFloat($(this).find("input[name$='.VAT']").val()) || 0;
-
-            let lineTotal = qty * price;
-            let lineVAT = lineTotal * vat / 100;
-
-            $(this).find("input[name$='.LINENET']").val(lineTotal.toFixed(2));
-            $(this).find("input[name$='.VATAMNT']").val(lineVAT.toFixed(2));
-
-            gross += lineTotal;
-            totalVAT += lineVAT;
-        });
-
-         // 🔽 İNDİRİM 
-        let discountValue = parseFloat($("#discountValue").val()) || 0;
-        let discountType = $("#discountType").val();
-
-        let discountAmount = 0;
-        if (discountType === "percent") {
-            discountAmount = gross * discountValue / 100;
-        } else {
-            discountAmount = discountValue;
-        }
-
-
-        let totalDiscounted = gross - discountAmount; 
-        let net = totalDiscounted + totalVAT;
-       
-    $("#discount").val(discountAmount.toFixed(2));
-    document.getElementById("GrossTotal").value = gross.toFixed(2);
-    document.getElementById("TotalVAT").value = totalVAT.toFixed(2);
-    document.getElementById("NetTotal").value = net.toFixed(2);
-    document.getElementById("ADDDISCOUNTS").value = discountAmount .toFixed(2);
-    document.getElementById("TOTALDISCOUNTS").value = discountAmount .toFixed(2);
-    document.getElementById("TOTALDISCOUNTED").value = totalDiscounted .toFixed(2);
-    document.getElementById("ReportNet").value = net.toFixed(2);
-  
-  
-    }
-
-    // Satır değiştiğinde veya indirim değiştiğinde yeniden hesapla 
-    $("#lineItemsBody").on("input", "input", recalcTotals);
-    $("#discountValue").on("input", recalcTotals);
-    $("#discountType").on("change", recalcTotals);
-        // Birim seçildiğinde UOMREF & USREF ayır 
-    $("#lineItemsBody").on("change", ".unitSelect", function () {
-        const row = $(this).closest("tr");
-        const [uomRef, usRef] = $(this).val().split("|");
-        row.find("input[name$='.UOMREF']").val(uomRef);
-        row.find("input[name$='.USREF']").val(usRef);
-    });
-
-        $("#btnSave").click(function(){
-                recalcTotals();
-                $.ajax({
-                    url: '/Order/Create',
-                    type: 'POST',
-                    data: $("#itemForm").serialize(),
-                    headers: {'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()},
-                    success: 
-                    function(){
-                        alert("Kaydedildi"); 
-                    //location.reload(); 
-                      window.location.href = "/Order/Index";
-                    },
-                    error: function(err){ console.log(err.responseText); alert("Hata"); }
-                });
-            });
-    // Submit öncesi toplamları güncelle 
-   function submitOrder(url) {
-        recalcTotals();
-
-        const logicalRef = $("input[name='Header.LOGICALREF']").val();
-        console.log("LOGICALREF =", logicalRef);
-
-        let formData = $("#itemForm").serialize();
-        console.log("FORM DATA =", formData);
-
-        $.ajax({
-            url: url,
-            type: "POST",
-            data: formData,
-            headers: {
-                'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
-            },
-            success: function (res) {
-                console.log("RESPONSE =", res);
-                alert(res.message || "OK");
-                window.location.href = "/Order/Index";
-            },
-            error: function (err) {
-                console.error(err.responseText);
-            }
-        });
-    }
-         
-            
-
-    $("#btnUpdate").on("click", function (e) {
-        e.preventDefault();
-        submitOrder("/Order/Edit");
-    });
-
-
-
-   // TIME_ otomatik oluştur
-    function getLogoTime(){
-        const d = new Date();
-        return d.getHours()*10000 + d.getMinutes()*100 + d.getSeconds();
-    }
-    $("#TIME_").val(getLogoTime());
-    
-
-    $(document).ready(function () {
-
-    $(".productSelect").each(function () {
-        const select = $(this);
-        const stockRef = select.data("selected");
-
-        if (stockRef) {
-            const item = $("#itemModalTable tr[data-ref='" + stockRef + "']");
-            select
-                .append(`<option value="${stockRef}" selected>${item.data("name")}</option>`)
-                .trigger("change");
-        }
-    });
-
-    $(".unitSelect").each(function () {
-        const uom = $(this).data("uom");
-        const us = $(this).data("us");
-        if (uom && us) {
-            $(this).val(`${uom}|${us}`).trigger("change");
-        }
-    });
-
-    });
-
-
-
-</script> 
- *@

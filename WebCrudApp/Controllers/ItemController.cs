@@ -1,14 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WebCrudApp.Models;
-using WebCrudApp.Models.Item;
-
-
+using Library.Models.Item;
+using Library.Models;
+using Library.Repository;
 
 [Authorize]
 public class ItemController : Controller
 {
-    ItemRepository repo = new ItemRepository();
+    Library.Repository.ItemRepository repo = new Library.Repository.ItemRepository();
     public IActionResult Index()
     {
         return View(new ItemPageViewModel
@@ -38,7 +37,7 @@ public class ItemController : Controller
     [HttpPost]
     public IActionResult Update(int LOGICALREF, string CODE, string NAME, int UNITSETREF)
     {
-        bool updated = ItemRepository.Update(LOGICALREF, CODE, NAME, UNITSETREF);
+        bool updated = Library.Repository.ItemRepository.Update(LOGICALREF, CODE, NAME, UNITSETREF);
 
         if (updated)
             return Ok();

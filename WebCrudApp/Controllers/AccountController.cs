@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
-using WebCrudApp.Models;
+using Library.Models;
 using Microsoft.AspNetCore.Authorization;
 
 namespace WebCrudApp.Controllers

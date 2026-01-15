@@ -2,9 +2,8 @@
 using Microsoft.Data.SqlClient;
 using System.Collections.Generic;
 using System.Data;
-using WebCrudApp.Data;
-using WebCrudApp.Models.Item;
-using WebCrudApp.Repository;
+using Library.Models.Item;
+using Library.Repository;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WebCrudApp.Controllers

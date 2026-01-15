@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Data.SqlClient;
 using System.Reflection;
 
-namespace WebCrudApp.Models.Order
+namespace Library.Models.Order
 {
     public class OrderCreateViewModel
     {
@@ -16,6 +16,9 @@ namespace WebCrudApp.Models.Order
             Clients = new List<SelectListItem>();
             Items = new List<OrderItemViewModel>();
             Units = new List<SelectListItem>();
+            PurchasePrice = new List<SelectListItem>();
+            SalePrice = new List<SelectListItem>();
+
         }
 
         public OrderHeaderModel Header { get; set; }
@@ -23,8 +26,9 @@ namespace WebCrudApp.Models.Order
         public List<SelectListItem> OrderTypes { get; set; }
         public List<SelectListItem> Clients { get; set; }
         public List<OrderItemViewModel> Items { get; set; }
-        public List<SelectListItem> Units { get; set; } 
-
+        public List<SelectListItem> Units { get; set; }
+        public List<SelectListItem> PurchasePrice { get; set; }
+        public List<SelectListItem> SalePrice { get; set; }
 
 
 

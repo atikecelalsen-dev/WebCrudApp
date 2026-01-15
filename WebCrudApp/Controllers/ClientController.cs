@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WebCrudApp.Models.Client;
+using Library.Models.Client;
 
 [Authorize]
 public class ClientController : Controller

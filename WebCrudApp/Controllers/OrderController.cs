@@ -1,14 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using WebCrudApp.Models.Order;
+using Library.Models.Order;
+using Library.Repository;
 
 public class OrderController : Controller
 {
-    private readonly OrderRepository _repo;
+    private readonly Library.Repository.OrderRepository _repo;
 
     public OrderController()
     {
-        _repo = new OrderRepository();  // somut sınıf
+        _repo = new Library.Repository.OrderRepository(); 
     }
 
     public IActionResult Index()
@@ -20,6 +21,7 @@ public class OrderController : Controller
     {
         model.Clients = _repo.GetClients();
         model.Items = _repo.GetItems();
+        
         model.OrderTypes = new List<SelectListItem>
     {
         new SelectListItem { Text = "Satış Siparişi", Value = "1" },
@@ -27,6 +29,14 @@ public class OrderController : Controller
     };
 
         ViewBag.ProductUnits = _repo.GetUnits();
+      
+    }
+
+    [HttpGet]
+    public IActionResult GetPrice(int itemRef, int uomRef, int orderType)
+    {
+        decimal price = _repo.GetItemPrice(itemRef, uomRef, orderType);
+        return Json(price);
     }
 
     [HttpGet]

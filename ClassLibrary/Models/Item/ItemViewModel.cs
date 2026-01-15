@@ -1,11 +1,10 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 
-namespace WebCrudApp.Models.Item
+namespace Library.Models.Item
 {
     public class ItemViewModel
     {

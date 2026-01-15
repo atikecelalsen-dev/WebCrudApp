@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace WebCrudApp.Models.Order
+namespace Library.Models.Order
 {
     public class OrderLineModel
     {

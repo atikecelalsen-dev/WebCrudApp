@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WebCrudApp.Repository;
+using Library.Repository;
 
 [Authorize]
 public class ClientAJAXController : Controller

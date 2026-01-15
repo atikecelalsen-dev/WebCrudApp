@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Data.SqlClient;
@@ -6,18 +6,18 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 
-namespace WebCrudApp.Models.Order
+namespace Library.Models.Order
 {
     public class OrderHeaderModel
     {
             public int LOGICALREF { get; set; }
             public int TRCODE { get; set; }
-            public string FICHENO { get; set; }
+            public string? FICHENO { get; set; }
             public DateTime DATE_ { get; set; }
             public int TIME_ { get; set; }
             public int CLIENTREF { get; set; }
 
-            public string CLIENTNAME { get; set; }
+            public string? CLIENTNAME { get; set; }
 
             public decimal GROSSTOTAL { get; set; }
             public decimal TOTALVAT { get; set; }

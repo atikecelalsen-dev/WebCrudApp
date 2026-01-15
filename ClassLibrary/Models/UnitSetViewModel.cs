@@ -3,7 +3,7 @@ using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
 
-namespace WebCrudApp.Models
+namespace Library.Models
 {
     public class UnitSetViewModel
     {

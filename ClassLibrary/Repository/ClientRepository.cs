@@ -1,9 +1,9 @@
 ﻿using Microsoft.Data.SqlClient;
 using System.Data;
-using WebCrudApp.Data;
-using WebCrudApp.Models.Client;
+using Library.Data;
+using Library.Models.Client;
 
-namespace WebCrudApp.Repository
+namespace Library.Repository
 {
     public class ClientRepository
     {
@@ -19,8 +19,8 @@ namespace WebCrudApp.Repository
                 list.Add(new ClientAJAXModel
                 {
                     LOGICALREF = Convert.ToInt32(dr["LOGICALREF"]),
-                    CODE = dr["CODE"].ToString(),
-                    DEFINITION_ = dr["DEFINITION_"].ToString()
+                    CODE = dr["CODE"]?.ToString() ?? "",
+                    DEFINITION_ = dr["DEFINITION_"]?.ToString() ?? ""
                 });
             }
 
@@ -52,8 +52,8 @@ namespace WebCrudApp.Repository
                 list.Add(new ClientAJAXModel
                 {
                     LOGICALREF = Convert.ToInt32(dr["LOGICALREF"]),
-                    CODE = dr["CODE"].ToString(),
-                    DEFINITION_ = dr["DEFINITION_"].ToString()
+                    CODE = dr["CODE"]?.ToString() ?? "",
+                    DEFINITION_ = dr["DEFINITION_"]?.ToString() ?? ""
                 });
             }
 
