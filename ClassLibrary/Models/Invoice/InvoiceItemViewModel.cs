@@ -1,6 +1,6 @@
-﻿namespace Library.Models.Order
+﻿namespace Library.Models.Invoice
 {
-    public class OrderItemViewModel
+    public class InvoiceItemViewModel
     {
         public string Value { get; set; }          // LOGICALREF
         public string Code { get; set; }           // MalzemeKodu

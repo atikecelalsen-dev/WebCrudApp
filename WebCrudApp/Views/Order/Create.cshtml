@@ -329,13 +329,12 @@
     let lineIndex = $(".line-row").length;
     const productUnits = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.ProductUnits));
 
-
     $(document).ready(function () {
           const dbDiscount = parseFloat($("#TOTALDISCOUNTS").val()) || 0;
           console.log("DB Discount =", dbDiscount);
       if (dbDiscount > 0) {
           $("#discountValue").val(dbDiscount);
-          $("#discountType").val("amount"); // LOGO mantığı
+          $("#discountType").val("amount");
       }
 
 
@@ -356,8 +355,6 @@
               
                   fillUnits(this);
 
-               
-
               const row = select.closest(".line-row");
               const unitSelect = row.find(".unitSelect");
 
@@ -374,7 +371,7 @@
           recalcTotals();
       });
 
-function fillUnits(productSelect) {
+    function fillUnits(productSelect) {
         const row = $(productSelect).closest(".line-row");
         const unitSelect = row.find(".unitSelect");
         const productId = parseInt($(productSelect).val(), 10);
@@ -386,7 +383,7 @@ function fillUnits(productSelect) {
                 unitSelect.append(`<option value="${u.Value}">${u.Text}</option>`);
             });
         }
-}
+    }
 
     function updateLinePrice(row) {
 
@@ -405,6 +402,7 @@ function fillUnits(productSelect) {
             recalcTotals();
         });
     }
+
     $("#orderTypeSelect").on("change", function () {
 
         let hasAnyProduct = false;
@@ -422,6 +420,7 @@ function fillUnits(productSelect) {
             updateLinePrice($(this));
         });
     });
+
         $("#lineItemsBody").on("change", ".unitSelect", function () {
 
         const row = $(this).closest(".line-row");
@@ -435,7 +434,7 @@ function fillUnits(productSelect) {
 
 
 
-      // Yeni satır ekleme 
+// Yeni satır ekleme 
 $("#addLineItem").click(function () {
     const row = `
     <div class="line-row border p-2 mb-2" data-index="${lineIndex}">
@@ -523,29 +522,28 @@ $("#addLineItem").click(function () {
       });
 
       @* //Ürün seçildiğinde birimleri doldur *@
-
       $(document).on("change", ".productSelect", function () {
           fillUnits(this);
       });
 
      function recalcTotals() {
-    let gross = 0;
-    let totalVAT = 0;
+        let gross = 0;
+        let totalVAT = 0;
 
-    $("#lineItemsBody .line-row").each(function () {
-        let qty = parseFloat($(this).find("input[name$='.AMOUNT']").val()) || 0;
-        let price = parseFloat($(this).find("input[name$='.PRICE']").val()) || 0;
-        let vat = parseFloat($(this).find("input[name$='.VAT']").val()) || 0;
+        $("#lineItemsBody .line-row").each(function () {
+            let qty = parseFloat($(this).find("input[name$='.AMOUNT']").val()) || 0;
+            let price = parseFloat($(this).find("input[name$='.PRICE']").val()) || 0;
+            let vat = parseFloat($(this).find("input[name$='.VAT']").val()) || 0;
 
-        let lineTotal = qty * price;
-        let lineVAT = lineTotal * vat / 100;
+            let lineTotal = qty * price;
+            let lineVAT = lineTotal * vat / 100;
 
-        $(this).find("input[name$='.LINENET']").val(lineTotal.toFixed(2));
-        $(this).find("input[name$='.VATAMNT']").val(lineVAT.toFixed(2));
+            $(this).find("input[name$='.LINENET']").val(lineTotal.toFixed(2));
+            $(this).find("input[name$='.VATAMNT']").val(lineVAT.toFixed(2));
 
-        gross += lineTotal;
-        totalVAT += lineVAT;
-    });
+            gross += lineTotal;
+            totalVAT += lineVAT;
+        });
 
           @* // 🔽 İNDİRİM *@
           let discountValue = parseFloat($("#discountValue").val()) || 0;
@@ -557,28 +555,26 @@ $("#addLineItem").click(function () {
           } else {
               discountAmount = discountValue;
           }
-
-
           let totalDiscounted = gross - discountAmount;
           let net = totalDiscounted + totalVAT;
 
-      $("#discount").val(discountAmount.toFixed(2));
-      document.getElementById("GrossTotal").value = gross.toFixed(2);
-      document.getElementById("TotalVAT").value = totalVAT.toFixed(2);
-      document.getElementById("NetTotal").value = net.toFixed(2);
-      document.getElementById("ADDDISCOUNTS").value = discountAmount .toFixed(2);
-      document.getElementById("TOTALDISCOUNTS").value = discountAmount .toFixed(2);
-      document.getElementById("TOTALDISCOUNTED").value = totalDiscounted .toFixed(2);
-      document.getElementById("ReportNet").value = net.toFixed(2);
+          $("#discount").val(discountAmount.toFixed(2));
 
-
+          document.getElementById("GrossTotal").value = gross.toFixed(2);
+          document.getElementById("TotalVAT").value = totalVAT.toFixed(2);
+          document.getElementById("NetTotal").value = net.toFixed(2);
+          document.getElementById("ADDDISCOUNTS").value = discountAmount .toFixed(2);
+          document.getElementById("TOTALDISCOUNTS").value = discountAmount .toFixed(2);
+          document.getElementById("TOTALDISCOUNTED").value = totalDiscounted .toFixed(2);
+          document.getElementById("ReportNet").value = net.toFixed(2);
       }
 
       @* // Satır değiştiğinde veya indirim değiştiğinde yeniden hesapla *@
       $("#lineItemsBody").on("input", "input", recalcTotals);
       $("#discountValue").on("input", recalcTotals);
       $("#discountType").on("change", recalcTotals);
-          @* // Birim seçildiğinde UOMREF & USREF ayır *@
+      
+      @* // Birim seçildiğinde UOMREF & USREF ayır *@
       $("#lineItemsBody").on("change", ".unitSelect", function () {
           const row = $(this).closest(".line-row");
           const [uomRef, usRef] = $(this).val().split("|");
@@ -586,22 +582,23 @@ $("#addLineItem").click(function () {
           row.find("input[name$='.USREF']").val(usRef);
       });
 
-          $("#btnSave").click(function(){
-                  recalcTotals();
-                  $.ajax({
-                      url: '/Order/Create',
-                      type: 'POST',
-                      data: $("#itemForm").serialize(),
-                      headers: {'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()},
-                      success:
-                      function(){
-                          alert("Kaydedildi");
-                      @* location.reload();  *@
-                        window.location.href = "/Order/Index";
-                      },
-                      error: function(err){ console.log(err.responseText); alert("Hata"); }
-                  });
-              });
+    $("#btnSave").click(function(){
+        recalcTotals();
+        $.ajax({
+            url: '/Order/Create',
+            type: 'POST',
+            data: $("#itemForm").serialize(),
+            headers: {'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()},
+            success:
+            function(){
+                alert("Kaydedildi");
+            @* location.reload();  *@
+            window.location.href = "/Order/Index";
+            },
+            error: function(err){ console.log(err.responseText); alert("Hata"); }
+        });
+    });
+
       @* // Submit öncesi toplamları güncelle *@
      function submitOrder(url) {
           recalcTotals();

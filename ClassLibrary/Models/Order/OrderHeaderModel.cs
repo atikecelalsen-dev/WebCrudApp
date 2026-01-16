@@ -38,5 +38,14 @@ namespace Library.Models.Order
             public short RECSTATUS { get; set; }
             public short CANCELLED { get; set; }
 
+        public int OrderType { get; set; } // 1 = Satın Alma, 2 = Satış
+
+        public string OrderTypeName => OrderType switch
+        {
+            2 => "Satın Alma Siparişi",
+            1 => "Satış Siparişi",
+            _ => "Bilinmiyor"
+        };
+
     }
 }

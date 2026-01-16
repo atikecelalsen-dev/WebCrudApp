@@ -1,0 +1,651 @@
+﻿@model Library.Models.Invoice.InvoiceCreateViewModel
+
+@{
+    bool isEdit = Model.Header.LOGICALREF > 0;
+}
+<h3>@(isEdit ? "Fatura Düzenle" : "Yeni Fatura")</h3>
+
+<form method="post" id="itemForm"
+      action="@(isEdit ? "/Invoice/Edit" : "/Invoice/Create")">
+
+    @Html.AntiForgeryToken()
+
+    <!-- HEADER -->
+    <div class="header-section mb-3">
+        <input type="hidden" name="Header.LOGICALREF" value="@Model.Header.LOGICALREF" />
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Invoice Type:</label>
+                    @Html.DropDownListFor(
+                    m => m.Header.GRPCODE,
+                        Model.InvoiceTypes,
+                        "-- Seçiniz --",
+                        new { @class = "form-control", id = "invoiceTypeSelect" })  
+                </div>
+                <input type="hidden" id="TRCODE" name="Header.TRCODE"
+                       value="@Model.Header.TRCODE" />
+                <div class="form-group">
+                    <label>Tarih:</label>
+                    <input type="date"
+                           name="Header.DATE_"
+                           class="form-control"
+                           id="DATE_"
+                           value="@(Model.Header.DATE_.ToString("yyyy-MM-dd"))" />
+                </div>
+                <input type="hidden" name="Header.TIME_" id="TIME_" />
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Fatura Numarası:</label>
+                    <input type="text"
+                           name="Header.FICHENO"
+                           class="form-control"
+                           value="@Model.Header.FICHENO"
+                           placeholder="00000000001" />
+                </div>
+                <div class="form-group">
+                    <label>Müşteri:</label>
+                    @Html.DropDownListFor(
+                                        m => m.Header.CLIENTREF,
+                                        Model.Clients,
+                                        "-- Seçiniz --",
+                                        new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LINE ITEMS -->
+    <div class="line-items-section mb-3">
+        <div id="lineItemsBody">
+
+            @if (Model.Lines != null && Model.Lines.Any())
+            {
+                for (int i = 0; i < Model.Lines.Count; i++)
+                {
+                    <div class="line-row border p-2 mb-2" data-index="@i">
+                        <div class="row g-2">
+
+                            <!-- PRODUCT -->
+                            <div class="col-md-3">
+                                <label>Malzeme</label>
+                                <select name="Lines[@i].STOCKREF"
+                                        class="form-control productSelect"
+                                        data-selected="@Model.Lines[i].STOCKREF">
+                                </select>
+                            </div>
+
+                            <!-- AMOUNT -->
+                            <div class="col-md-1">
+                                <label>Miktar</label>
+                                <input type="number"
+                                       name="Lines[@i].AMOUNT"
+                                       class="form-control"
+                                       value="@Model.Lines[i].AMOUNT" />
+                            </div>
+
+                            <!-- UNIT -->
+                            <div class="col-md-2">
+                                <label>Birim</label>
+                                <select class="form-control unitSelect"
+                                        data-uom="@Model.Lines[i].UOMREF"
+                                        data-us="@Model.Lines[i].USREF">
+                                    <option value="">-- Seçiniz --</option>
+                                </select>
+
+                                <input type="hidden" name="Lines[@i].UOMREF" value="@Model.Lines[i].UOMREF" />
+                                <input type="hidden" name="Lines[@i].USREF" value="@Model.Lines[i].USREF" />
+                            </div>
+
+                            <!-- PRICE -->
+                            <div class="col-md-2">
+                                <label>Birim Fiyat</label>
+                                <input type="number"
+                                       name="Lines[@i].PRICE"
+                                       class="form-control"
+                                       value="@Model.Lines[i].PRICE" />
+                            </div>
+
+                            <!-- VAT -->
+                            <div class="col-md-1">
+                                <label>KDV %</label>
+                                <input type="number"
+                                       name="Lines[@i].VAT"
+                                       class="form-control"
+                                       value="@Model.Lines[i].VAT" />
+                            </div>
+
+                            <!-- VAT AMOUNT -->
+                            <div class="col-md-1">
+                                <label>KDV</label>
+                                <input type="number"
+                                       name="Lines[@i].VATAMNT"
+                                       class="form-control"
+                                       readonly />
+                            </div>
+
+                            <!-- LINE NET -->
+                            <div class="col-md-1">
+                                <label>Tutar</label>
+                                <input type="number"
+                                       name="Lines[@i].LINENET"
+                                       class="form-control"
+                                       readonly />
+                            </div>
+
+                            <!-- DELETE -->
+                            <div class="col-md-1 d-flex align-items-end">
+                                <button type="button" class="btn btn-danger removeLine">Sil</button>
+                            </div>
+
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="line-row border p-2 mb-2" data-index="0">
+                    <div class="row g-2">
+                        <div class="col-md-3">
+                            <label>Malzeme</label>
+                            <select name="Lines[0].STOCKREF"
+                                    class="form-control productSelect"
+                                    accesskey=""></select>
+                        </div>
+
+                        <div class="col-md-1">
+                            <label>Miktar</label>
+                            <input type="number" name="Lines[0].AMOUNT" class="form-control" />
+                        </div>
+
+                        <div class="col-md-2">
+                            <label>Birim</label>
+                            <select class="form-control unitSelect">
+                                <option value="">-- Seçiniz --</option>
+                            </select>
+                            <input type="hidden" name="Lines[0].UOMREF" value="0" />
+                            <input type="hidden" name="Lines[0].USREF" value="0" />
+                        </div>
+
+                        <div class="col-md-2">
+                            <label>Fiyat</label>
+                            <input type="number" name="Lines[0].PRICE" class="form-control" />
+                        </div>
+
+                        <div class="col-md-1">
+                            <label>KDV %</label>
+                            <input type="number" name="Lines[0].VAT" class="form-control" value="20" />
+                        </div>
+
+                        <div class="col-md-1">
+                            <label>KDV</label>
+                            <input type="number" name="Lines[0].VATAMNT" class="form-control" readonly />
+                        </div>
+
+                        <div class="col-md-1">
+                            <label>Tutar</label>
+                            <input type="number" name="Lines[0].LINENET" class="form-control" readonly />
+                        </div>
+
+                        <div class="col-md-1 d-flex align-items-end">
+                            <button type="button" class="btn btn-danger removeLine">Sil</button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col d-flex justify-content-start">
+            <button type="button" class="btn btn-primary" id="addLineItem">Yeni Satır Ekle</button>
+        </div>
+
+        <div class="col d-flex align-items-center justify-content-end">
+            <label>INDIRIM:  </label>
+            <div style="margin-left:20px;" class="input-group">
+                <input type="number" id="discountValue" class="form-control" value="0" min="0" />
+                <select id="discountType" class="form-select">
+                    <option value="percent">%</option>
+                    <option value="amount">Tutar</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <br/>
+
+    <!-- ALT TOPLAM & İNDİRİM -->
+    <div class="d-flex justify-content-end">
+        <div class="col-md-3">
+            <div class="col-mb-3">
+                <div class="row d-flex align-items-center" style="border:1px solid #dee2e6; padding:0; margin:0;">
+                    <div class="col-6 justify-content-start">
+                        <label>TOPLAM TUTAR</label>
+                    </div>
+                    <div class=" col-6 justify-content-end">
+                        <input class="form-control" type="text" id="GrossTotal" name="Header.GROSSTOTAL" readonly value="0" />
+                    </div>
+                </div>
+                <div class="row d-flex align-items-center" style="border:1px solid #dee2e6; padding:0; margin:0;">
+                    <div class="col-6 justify-content-start">
+                        <label>TOPLAM KDV</label>
+                    </div>
+                    <div class=" col-6 justify-content-end">
+                        <input type="text" id="TotalVAT" name="Header.TOTALVAT" class="form-control" readonly value="0" />
+                    </div>
+                </div>
+
+                <div class="row d-flex align-items-center" style="border:1px solid #dee2e6; padding:0; margin:0;">
+                    <div class="col-6 justify-content-start">
+                        <label>TOPLAM INDIRIM</label>
+                    </div>
+                    <div class=" col-6 justify-content-end">
+                        <input type="text" id="discount" class="form-control" readonly value="0" />
+                    </div>
+                </div>
+
+                <div class="row d-flex align-items-center" style="border:1px solid #dee2e6; padding:0; margin:0;">
+                    <div class="col-6 justify-content-start">
+                        <label>NET TUTAR</label>
+                    </div>
+                    <div class=" col-6 justify-content-end">
+                        <input class="form-control" type="text" id="NetTotal" name="Header.NETTOTAL" readonly value="0" />
+                    </div>
+                </div>
+            </div>
+
+            <input type="hidden" id="ADDDISCOUNTS"
+                   name="Header.ADDDISCOUNTS"
+                   value="@Model.Header.ADDDISCOUNTS" />
+
+            <input type="hidden" id="TOTALDISCOUNTS"
+                   name="Header.TOTALDISCOUNTS"
+                   value="@Model.Header.TOTALDISCOUNTS" />
+
+            <input type="hidden" id="TOTALDISCOUNTED"
+                   name="Header.TOTALDISCOUNTED"
+                   value="@Model.Header.TOTALDISCOUNTED" />
+
+            <input type="hidden" id="ReportNet"
+                   name="Header.REPORTNET"
+                   value="@Model.Header.REPORTNET" />
+        </div>
+    </div>
+    <br />
+
+    <div class="d-flex justify-content-end">
+        @if (isEdit)
+        {
+            <button type="button" id="btnUpdate" class="btn btn-secondary">Güncelle</button>
+        }
+        else
+        {
+            <button type="button" id="btnSave" class="btn btn-primary">Kaydet</button>
+        }
+    </div>
+</form>
+
+<br />
+<div class="modal fade" id="invoiceItemModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Malzeme ve Stoklar</h5>
+                <button type="button" class="close"
+                        onclick="$('#invoiceItemModal').modal('hide')"
+                        data-dismiss="modal">
+                    &times;
+                </button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered" id="invoiceItemModalTable">
+                    <thead>
+                        <tr>
+                            <th>Kodu</th>
+                            <th>Ürün Adı</th>
+                            <th>Stok</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr class="selectable-item" data-ref="@item.Value" data-name="@item.Text">
+                                <td>@item.Code</td>
+                                <td>@item.Text</td>
+                                <td>@item.OnHand</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+
+<script>
+        let lineIndex = $(".line-row").length;
+        const productUnits = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.ProductUnits));
+
+        $(document).ready(function () {
+              const dbDiscount = parseFloat($("#TOTALDISCOUNTS").val()) || 0;
+              console.log("DB Discount =", dbDiscount);
+          if (dbDiscount > 0) {
+              $("#discountValue").val(dbDiscount);
+              $("#discountType").val("amount");
+          }
+
+
+          $(".productSelect").each(function () {
+                  const select = $(this);
+                  const stockRef = select.data("selected");
+
+                  if (!stockRef) return;
+
+                      const itemRow = $("#invoiceItemModalTable tr").filter(function () {
+                         return String($(this).data("ref")) === String(stockRef); });
+                    const itemName = itemRow.data("name");
+
+
+                  select
+                      .empty()
+                      .append(`<option value="${stockRef}" selected>${itemName}</option>`);
+
+                      fillUnits(this);
+
+                  const row = select.closest(".line-row");
+                  const unitSelect = row.find(".unitSelect");
+
+                  const uom = unitSelect.data("uom");
+                  const us = unitSelect.data("us");
+
+                       setTimeout(() => {
+                            if (uom && us) {
+                                unitSelect.val(`${uom}|${us}`).trigger("change");
+                            }
+                        }, 0);
+              });
+
+              recalcTotals();
+          });
+
+        function fillUnits(productSelect) {
+            const row = $(productSelect).closest(".line-row");
+            const unitSelect = row.find(".unitSelect");
+            const productId = parseInt($(productSelect).val(), 10);
+
+            unitSelect.empty().append('<option value="">-- Seçiniz --</option>');
+
+            if (productUnits && productUnits[productId]) {
+                productUnits[productId].forEach(u => {
+                    unitSelect.append(`<option value="${u.Value}">${u.Text}</option>`);
+                });
+            }
+        }
+
+        function updateLinePrice(row) {
+
+            const itemRef = row.find(".productSelect").val();
+            const uomRef = row.find("input[name$='.UOMREF']").val();
+            const invoiceType = $("#invoiceTypeSelect").val();
+
+            if (!itemRef || !uomRef || !invoiceType) return;
+
+            $.get("/Invoice/GetPrice", {
+                itemRef: itemRef,
+                uomRef: uomRef,
+                invoiceType: invoiceType
+            }, function (price) {
+                row.find("input[name$='.PRICE']").val(price);
+                recalcTotals();
+            });
+        }
+
+        $("#invoiceTypeSelect").on("change", function () {
+
+            let hasAnyProduct = false;
+
+            $("#lineItemsBody .line-row").each(function () {
+                const itemRef = $(this).find(".productSelect").val();
+                if (itemRef) hasAnyProduct = true;
+            });
+
+            if (!hasAnyProduct) return;
+
+            alert("Fatura türü değiştirildi. Birim fiyatlar güncellenecektir.");
+
+            $("#lineItemsBody .line-row").each(function () {
+                updateLinePrice($(this));
+            });
+        });
+
+            $("#lineItemsBody").on("change", ".unitSelect", function () {
+
+            const row = $(this).closest(".line-row");
+            const [uomRef, usRef] = $(this).val().split("|");
+
+            row.find("input[name$='.UOMREF']").val(uomRef);
+            row.find("input[name$='.USREF']").val(usRef);
+
+            updateLinePrice(row);
+        });
+
+
+
+    // Yeni satır ekleme
+    $("#addLineItem").click(function () {
+        const row = `
+        <div class="line-row border p-2 mb-2" data-index="${lineIndex}">
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <label>Malzeme</label>
+                    <select name="Lines[${lineIndex}].STOCKREF"
+                            class="form-control productSelect"></select>
+                </div>
+
+                <div class="col-md-1">
+                    <label>Miktar</label>
+                    <input type="number" name="Lines[${lineIndex}].AMOUNT" class="form-control" />
+                </div>
+
+                <div class="col-md-2">
+                    <label>Birim</label>
+                    <select class="form-control unitSelect">
+                        <option value="">-- Seçiniz --</option>
+                    </select>
+                    <input type="hidden" name="Lines[${lineIndex}].UOMREF" value="0" />
+                    <input type="hidden" name="Lines[${lineIndex}].USREF" value="0" />
+                </div>
+
+                <div class="col-md-2">
+                    <label>Fiyat</label>
+                    <input type="number" name="Lines[${lineIndex}].PRICE" class="form-control" />
+                </div>
+
+                <div class="col-md-1">
+                    <label>KDV %</label>
+                    <input type="number" name="Lines[${lineIndex}].VAT" class="form-control" value="20" />
+                </div>
+
+                <div class="col-md-1">
+                    <label>KDV</label>
+                    <input type="number" name="Lines[${lineIndex}].VATAMNT" class="form-control" readonly />
+                </div>
+
+                <div class="col-md-1">
+                    <label>Tutar</label>
+                    <input type="number" name="Lines[${lineIndex}].LINENET" class="form-control" readonly />
+                </div>
+
+                <div class="col-md-1 d-flex align-items-end">
+                    <button type="button" class="btn btn-danger removeLine">Sil</button>
+                </div>
+            </div>
+        </div>`;
+
+        $("#lineItemsBody").append(row);
+        lineIndex++;
+    });
+
+          @* // //Ürün seçmek için Modal açıyoruz. *@
+            $(document).on('mousedown', '.productSelect', function (e) {
+            e.preventDefault();
+            window.currentDropdown = this;
+            $('#invoiceItemModal').modal('show');
+        });
+
+          $(document).on('click', '.selectable-item', function () {
+              if (!window.currentDropdown) return;
+              const ref = $(this).data('ref');
+              const name = $(this).data('name');
+              const select = window.currentDropdown;
+              if (!$(select).is("select")) {
+                  console.error("currentDropdown select değil:", select);
+                  return;
+              }
+              $(select)
+                  .empty()
+                  .append(`<option value="${ref}" selected>${name}</option>`);
+              fillUnits(select);
+              $('#invoiceItemModal').modal('hide');
+          });
+
+
+          @* // Satır sil *@
+          $("#lineItemsBody").on("click", ".removeLine", function(){
+              if(!confirm('Bu faturayı silmek istediğinize emin misiniz?')) return;
+
+              $(this).closest(".line-row").remove();
+
+          });
+
+          @* //Ürün seçildiğinde birimleri doldur *@
+          $(document).on("change", ".productSelect", function () {
+              fillUnits(this);
+          });
+
+         function recalcTotals() {
+            let gross = 0;
+            let totalVAT = 0;
+
+            $("#lineItemsBody .line-row").each(function () {
+                let qty = parseFloat($(this).find("input[name$='.AMOUNT']").val()) || 0;
+                let price = parseFloat($(this).find("input[name$='.PRICE']").val()) || 0;
+                let vat = parseFloat($(this).find("input[name$='.VAT']").val()) || 0;
+
+                let lineTotal = qty * price;
+                let lineVAT = lineTotal * vat / 100;
+
+                $(this).find("input[name$='.LINENET']").val(lineTotal.toFixed(2));
+                $(this).find("input[name$='.VATAMNT']").val(lineVAT.toFixed(2));
+
+                gross += lineTotal;
+                totalVAT += lineVAT;
+            });
+
+              @* // 🔽 İNDİRİM *@
+              let discountValue = parseFloat($("#discountValue").val()) || 0;
+              let discountType = $("#discountType").val();
+
+              let discountAmount = 0;
+              if (discountType === "percent") {
+                  discountAmount = gross * discountValue / 100;
+              } else {
+                  discountAmount = discountValue;
+              }
+              let totalDiscounted = gross - discountAmount;
+              let net = totalDiscounted + totalVAT;
+
+              $("#discount").val(discountAmount.toFixed(2));
+
+              document.getElementById("GrossTotal").value = gross.toFixed(2);
+              document.getElementById("TotalVAT").value = totalVAT.toFixed(2);
+              document.getElementById("NetTotal").value = net.toFixed(2);
+              document.getElementById("ADDDISCOUNTS").value = discountAmount .toFixed(2);
+              document.getElementById("TOTALDISCOUNTS").value = discountAmount .toFixed(2);
+              document.getElementById("TOTALDISCOUNTED").value = totalDiscounted .toFixed(2);
+              document.getElementById("ReportNet").value = net.toFixed(2);
+          }
+
+          @* // Satır değiştiğinde veya indirim değiştiğinde yeniden hesapla *@
+          $("#lineItemsBody").on("input", "input", recalcTotals);
+          $("#discountValue").on("input", recalcTotals);
+          $("#discountType").on("change", recalcTotals);
+
+          @* // Birim seçildiğinde UOMREF & USREF ayır *@
+          $("#lineItemsBody").on("change", ".unitSelect", function () {
+              const row = $(this).closest(".line-row");
+              const [uomRef, usRef] = $(this).val().split("|");
+              row.find("input[name$='.UOMREF']").val(uomRef);
+              row.find("input[name$='.USREF']").val(usRef);
+          });
+
+        $("#btnSave").click(function(){
+            recalcTotals();
+            $.ajax({
+                url: '/Invoice/Create',
+                type: 'POST',
+                data: $("#itemForm").serialize(),
+                headers: {'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()},
+                success:
+                function(){
+                    alert("Kaydedildi");
+                @* location.reload();  *@
+                window.location.href = "/Invoice/Index";
+                },
+                error: function(err){ console.log(err.responseText); alert("Hata"); }
+            });
+        });
+
+          @* // Submit öncesi toplamları güncelle *@
+         function submitInvoice(url) {
+              recalcTotals();
+
+              const logicalRef = $("input[name='Header.LOGICALREF']").val();
+              console.log("LOGICALREF =", logicalRef);
+
+              let formData = $("#itemForm").serialize();
+              console.log("FORM DATA =", formData);
+
+              $.ajax({
+                  url: url,
+                  type: "POST",
+                  data: formData,
+                  headers: {
+                      'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                  },
+                  success: function (res) {
+                      console.log("RESPONSE =", res);
+                      alert(res.message || "OK");
+                      window.location.href = "/Invoice/Index";
+                  },
+                  error: function (err) {
+                      console.error(err.responseText);
+                  }
+              });
+          }
+
+
+
+          $("#btnUpdate").on("click", function (e) {
+              e.preventDefault();
+              submitInvoice("/Invoice/Edit");
+          });
+
+
+
+          @* // TIME_ otomatik oluştur *@
+          function getLogoTime(){
+              const d = new Date();
+              return d.getHours()*10000 + d.getMinutes()*100 + d.getSeconds();
+          }
+          $("#TIME_").val(getLogoTime());
+
+
+
+</script>

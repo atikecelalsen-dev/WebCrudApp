@@ -8,12 +8,14 @@ namespace Library.Models.Invoice
 {
     public class InvoiceHeaderModel
     {
-        //    GRPCODE, TRCODE, FICHENO, DATE_, TIME_, CLIENTREF,
+        // GRPCODE, TRCODE, FICHENO, DATE_, TIME_, CLIENTREF,
         // VAT, ADDDISCOUNTS, TOTALDISCOUNTS, TOTALDISCOUNTED, TOTALVAT, GROSSTOTAL,
-        //NETTOTAL,REPORTRATE, REPORTNET,BRANCH, DEPARTMENT ,RECSTATUS, STATUS, CANCELLED
+        // NETTOTAL,REPORTRATE, REPORTNET,
+        // BRANCH, DEPARTMENT ,RECSTATUS, STATUS, CANCELLED
 
         //TRCURR, TRRATE, TRNET,  KASTRANSREF,  PAIDINCASH, FROMKASA, ENTEGSET,
-        // AFFECTRISK, ESTATUS, TOTALSERVICES, ORDFICHECMREF, COSFCREFINFL,
+        // AFFECTRISK, ESTATUS, TOTALSERVICES, ORDFICHECMREF, COSFCREFINFL, 
+      
 
         public int LOGICALREF { get; set; }
         public int GRPCODE { get; set; }
@@ -42,7 +44,16 @@ namespace Library.Models.Invoice
         public short STATUS { get; set; }
         public short RECSTATUS { get; set; }
         public short CANCELLED { get; set; }
+        public short ORDFICHECMREF { get; set; }
 
+        public int InvoiceType { get; set; } // 1 = Satın Alma, 2 = Satış
+
+        public string InvoiceTypeName => InvoiceType switch
+        {
+            1 => "Satın Alma Faturası",
+            2 => "Satış Faturası",
+            _ => "Bilinmiyor"
+        };
 
     }
 }

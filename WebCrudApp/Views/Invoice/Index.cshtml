@@ -8,16 +8,17 @@
 <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Faturalar</h2>
-        @* <a href="/Invoice/Create" class="btn btn-primary">Yeni Fatura</a> *@
+        <a href="/Invoice/Create" class="btn btn-primary">Yeni Fatura</a>
     </div>
 
     <!-- HEADER (Desktop) -->
     <div class="row fw-bold border-bottom pb-2 mb-2 d-none d-md-flex">
         <div class="col-md-2">Fatura No</div>
+        <div class="col-md-2">Fatura Tipi</div>
         <div class="col-md-2">Tarih</div>
         <div class="col-md-3">Müşteri</div>
-        <div class="col-md-2">Net Tutar</div>
-        <div class="col-md-3">İşlemler</div>
+        <div class="col-md-1">Net Tutar</div>
+        <div class="col-md-2">İşlemler</div>
     </div>
 
     <!-- LIST -->
@@ -30,9 +31,16 @@
                      data-id="@item.LOGICALREF"
                      style="cursor:pointer">
 
+                   
+
                     <div class="col-12 col-md-2">
                         <span class="d-md-none fw-bold">Fatura No: </span>
                         @item.FICHENO
+                    </div>
+
+                    <div class="col-12 col-md-2">
+                        <span class="d-md-none fw-bold">Fatura Tipi: </span>
+                        @item.InvoiceTypeName
                     </div>
 
                     <div class="col-12 col-md-2">
@@ -45,15 +53,15 @@
                         @item.CLIENTNAME
                     </div>
 
-                    <div class="col-12 col-md-2">
+                    <div class="col-12 col-md-1">
                         <span class="d-md-none fw-bold">Net Tutar: </span>
                         @item.NETTOTAL.ToString("N2")
                     </div>
 
-                    <div class="col-12 col-md-3 mt-2 mt-md-0">
+                    <div class="col-12 col-md-2 mt-2 mt-md-0">
                         <button type="button"
-                                class="btn btn-secondary btn-sm me-2">
-                             @* onclick="location.href='/Order/Edit/@item.LOGICALREF'"> *@
+                                class="btn btn-secondary btn-sm me-2"
+                             onclick="location.href='/Invoice/Edit/@item.LOGICALREF'">
                             Düzenle
                         </button>
 

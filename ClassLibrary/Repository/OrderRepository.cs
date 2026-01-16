@@ -4,6 +4,7 @@ using Library.Models.Order;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Data.SqlClient;
 using System.Data;
+using System.Reflection.PortableExecutable;
 
 namespace Library.Repository
 {
@@ -135,6 +136,7 @@ namespace Library.Repository
                 SELECT TOP 1000
                     O.LOGICALREF,
                     O.FICHENO,
+                    O.TRCODE,
                     O.DATE_,
                     O.TIME_,
                     O.CLIENTREF,
@@ -151,6 +153,7 @@ namespace Library.Repository
                 {
                     LOGICALREF = Convert.ToInt32(row["LOGICALREF"]),
                     FICHENO = row["FICHENO"].ToString(),
+                    OrderType = Convert.ToInt32(row["TRCODE"]),
                     DATE_ = Convert.ToDateTime(row["DATE_"]),
                     TIME_ = Convert.ToInt32(row["TIME_"]),
                     CLIENTREF = Convert.ToInt32(row["CLIENTREF"]),
@@ -244,6 +247,29 @@ namespace Library.Repository
                     new SqlParameter("@SHIPPEDAMOUNT", line.AMOUNT)
                     );
                 }
+                //İndirim satırı
+                if (model.Header.TOTALDISCOUNTS > 0)
+                {
+                    SqlHelper.Execute(@"
+                INSERT INTO LG_001_01_ORFLINE
+                (ORDFICHEREF, STOCKREF, CLIENTREF, LINETYPE, LINENO_, DETLINE,
+                TRCODE, DATE_, TIME_, TOTAL,
+                 RECSTATUS, CANCELLED)
+                VALUES
+                (@ORDFICHEREF, 0, @CLIENTREF, 2, @LINENO_, 0,
+                 @TRCODE, @DATE_, @TIME_, @TOTAL,
+                 1, 0)",
+                        con, tran,
+                        new SqlParameter("@ORDFICHEREF", ordFicheRef),
+                        new SqlParameter("@CLIENTREF", model.Header.CLIENTREF),
+                        new SqlParameter("@LINENO_", lineNo),
+                        new SqlParameter("@TRCODE", model.Header.TRCODE),
+                        new SqlParameter("@DATE_", model.Header.DATE_),
+                        new SqlParameter("@TIME_", model.Header.TIME_),
+                        new SqlParameter("@TOTAL", model.Header.TOTALDISCOUNTS)
+                    );
+                }
+
 
                 tran.Commit();
             }
