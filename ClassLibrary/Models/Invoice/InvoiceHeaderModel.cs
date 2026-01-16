@@ -18,7 +18,7 @@ namespace Library.Models.Invoice
         public int LOGICALREF { get; set; }
         public int GRPCODE { get; set; }
         public int TRCODE { get; set; }
-        public string FICHENO { get; set; }
+        public string? FICHENO { get; set; }
         public DateTime DATE_ { get; set; }
         public int TIME_ { get; set; }
         public int CLIENTREF { get; set; }
