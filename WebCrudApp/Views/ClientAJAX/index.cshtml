@@ -1,41 +1,66 @@
 ﻿@model List<Library.Models.Client.ClientAJAXModel>
+@{
+    ViewBag.Title = "Müşteriler AJAX";
+}
 
-<h2>Müşteri İşlemleri</h2>
+<h2 class="mb-4 text-xl font-semibold">Müşteri İşlemleri</h2>
 
-<form method="post">
+<form class="space-y-4">
     <input type="hidden" name="logicalRef" id="logicalRef" />
 
-    <div class="form-group">
-        <label>CODE:</label>
-        <input type="text" class="form-control" id="code" name="CODE" value="@ViewBag.Code" placeholder="000" />
-        <small id="codeHelp" class="form-text text-muted">Code must be unique, please check the list.</small>
-    </div>
+    <div class="-mx-3 flex flex-wrap">
+        <div class="mb-3 w-full px-3 md:w-1/2">
+            <label class="mb-1 block text-sm font-medium">CODE</label>
+            <input type="text"
+                   id="code"
+                   name="CODE"
+                   value="@ViewBag.Code"
+                   placeholder="000"
+                   class="w-full rounded border border-gray-300 px-3 py-2
+                          focus:outline-none focus:ring-2 focus:ring-blue-600" />
+            <p class="mt-1 text-sm text-gray-500">
+                Code must be unique, please check the list.
+            </p>
+        </div>
+    
 
-    <div class="form-group">
-        <label>İSİM:</label>
-        <input type="text" class="form-control" id="definition" name="DEFINITION_" placeholder="Name of the Client" value="@ViewBag.Definition" />
-        <small id="nameHelp" class="form-text text-muted">Please enter the Name of Client.</small>
+        <div class="mb-3 w-full px-3 md:w-1/2">
+            <label class="mb-1 block text-sm font-medium">İSİM</label>
+            <input type="text"
+                   id="definition"
+                   name="DEFINITION_"
+                   value="@ViewBag.Definition"
+                   placeholder="Name of the Client"
+                   class="w-full rounded border border-gray-300 px-3 py-2
+                          focus:outline-none focus:ring-2 focus:ring-blue-600" />
+            <p class="mt-1 text-sm text-gray-500">
+                Please enter the Name of Client.
+            </p>
+        </div>
     </div>
-
 </form>
 
-<div class="alert alert-warning" role="alert">
-    <strong>Lütfen yapacağınız işlemi seçin:</strong>
+<div class="mt-4 rounded border border-yellow-200 bg-yellow-50 p-3 text-sm font-medium">
+    <a>Lütfen yapacağınız işlemi seçin:</a>
 </div>
 
-<button id="btnLoad" type="button" class="btn btn-primary">Listele</button>
-<button id="btnCreate" type="button" class="btn btn-outline-success">Ekle</button>
-<button id="btnSearch" type="button" class="btn btn-secondary">Bul</button>
-<button id="btnUpdate" type="button" class="btn btn-outline-warning">Güncelle</button>
-<button id="btnDelete" type="button" class="btn btn-outline-danger">Sil</button>
+<div class="mt-4 flex flex-wrap gap-2">
+    <button id="btnLoad" class="font-sm rounded-lg bg-green-500 px-6 py-2 text-white transition hover:bg-green-700
+            focus:outline-none focus:ring-2 focus:ring-green-600" >Listele</button>
+    <button id="btnCreate" class="font-sm rounded-lg bg-blue-500 px-6 py-2 text-white transition hover:bg-blue-700
+            focus:outline-none focus:ring-2 focus:ring-blue-600">Ekle</button>
+    <button id="btnSearch" class="font-sm rounded-lg bg-gray-500 px-6 py-2 text-white transition hover:bg-gray-800
+            focus:outline-none focus:ring-2 focus:ring-gray-600" >Bul</button>
+    <button id="btnUpdate" class="font-sm rounded-lg bg-yellow-500 px-6 py-2 text-white transition hover:bg-yellow-700
+            focus:outline-none focus:ring-2 focus:ring-yellow-600" >Güncelle</button>
+    <button id="btnDelete" class="font-sm rounded-lg bg-red-500 px-6 py-2 text-white transition hover:bg-red-700
+            focus:outline-none focus:ring-2 focus:ring-red-600" >Sil</button>
+</div>
 
-<hr />
+<hr class="my-6" />
 
-<!-- Liste div container -->
+<!-- Liste -->
 <div id="clientListContainer"></div>
-
-<script src="~/lib/jquery/dist/jquery.min.js"></script>
-<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
     $(document).ready(function () {
@@ -44,8 +69,8 @@
 
     // Row select
     $(document).on("click", ".rowSelect", function () {
-        $(".rowSelect").removeClass("table-active");
-        $(this).addClass("table-active");
+        $(".rowSelect").removeClass("bg-blue-50 border-blue-600 ring-1 ring-blue-500");
+        $(this).addClass("bg-blue-50 border-blue-600 ring-1 ring-blue-500");
 
         $("#logicalRef").val($(this).data("id"));
         $("#code").val($(this).data("code"));

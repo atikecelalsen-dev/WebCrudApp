@@ -41,6 +41,7 @@ CultureInfo.DefaultThreadCurrentUICulture = culture;
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
+
 app.UseRouting();
 
 app.UseAuthentication();

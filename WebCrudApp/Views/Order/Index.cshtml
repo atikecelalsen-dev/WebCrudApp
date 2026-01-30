@@ -1,71 +1,97 @@
-﻿@model List<Library.Models.Order.OrderHeaderModel>
+﻿
+@model List<Library.Models.Order.OrderHeaderModel>
 
 @{
     ViewBag.Title = "Siparişler";
 }
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" />
+<div class="mx-auto max-w-7xl px-4 py-6">
 
-<div class="container mt-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Siparişler</h2>
-        <a href="/Order/Create" class="btn btn-primary">Yeni Sipariş</a>
+    <!-- HEADER -->
+    <div class="mb-6 flex items-center justify-between">
+        <h2 class="text-xl font-semibold">Siparişler</h2>
+        <a href="/Order/Create"
+           class="rounded bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+            Yeni Sipariş
+        </a>
     </div>
 
-    <!-- HEADER (Desktop) -->
-    <div class="row fw-bold border-bottom pb-2 mb-2 d-none d-md-flex">
-        <div class="col-md-2">Sipariş No</div>
-        <div class="col-md-2">Sipariş Tipi</div>
-        <div class="col-md-2">Tarih</div>
-        <div class="col-md-3">Müşteri</div>
-        <div class="col-md-1">Net Tutar</div>
-        <div class="col-md-2">İşlemler</div>
+    <!-- TABLE HEADER (Desktop) -->
+    <div class="mb-3 hidden grid-cols-12 gap-2
+                border-b pb-2 text-sm font-semibold text-gray-600 md:grid">
+
+        <div class="col-span-2">Sipariş No</div>
+        <div class="col-span-2">Sipariş Tipi</div>
+        <div class="col-span-2">Tarih</div>
+        <div class="col-span-3">Müşteri</div>
+        <div class="col-span-1 text-right">Net Tutar</div>
+        <div class="col-span-2 text-right">İşlemler</div>
     </div>
 
     <!-- LIST -->
-    <div id="orderList">
+    <div id="orderList" class="space-y-2">
+
         @if (Model != null && Model.Any())
         {
             foreach (var item in Model)
             {
-                <div class="order-row row align-items-center border rounded p-2 mb-2"
-                     data-id="@item.LOGICALREF"
-                     style="cursor:pointer">
+                <div class="order-row grid cursor-pointer grid-cols-1 gap-2
+                            rounded-lg border border-gray-200 bg-white
+                            px-4 py-3 transition
+                            hover:bg-blue-50 md:grid-cols-12"
 
-                    <div class="col-12 col-md-2">
-                        <span class="d-md-none fw-bold">Sipariş No: </span>
-                        @item.FICHENO
+                     data-id="@item.LOGICALREF">
+
+                    <!-- Sipariş No -->
+                    <div class="text-sm md:col-span-2">
+                        <span class="font-semibold md:hidden">Sipariş No: </span>
+                        <div class="text-sm font-medium text-slate-800">
+                            @item.FICHENO
+                        </div>
                     </div>
 
-                    <div class="col-12 col-md-2">
-                        <span class="d-md-none fw-bold">Fatura Tipi: </span>
-                        @item.OrderTypeName
+                    <!-- Tip -->
+                    <div class="text-sm md:col-span-2">
+                        <span class="font-semibold md:hidden">Sipariş Tipi: </span>
+                        <div class="text-sm text-slate-700">
+                            @item.OrderTypeName
+                        </div>
                     </div>
 
-                    <div class="col-12 col-md-2">
-                        <span class="d-md-none fw-bold">Tarih: </span>
-                        @item.DATE_.ToString("yyyy-MM-dd")
+                    <!-- Tarih -->
+                    <div class="text-sm md:col-span-2">
+                        <span class="font-semibold md:hidden">Tarih: </span>
+                        <div class="text-sm text-slate-700">
+                            @item.DATE_.ToString("yyyy-MM-dd")
+                        </div>
                     </div>
 
-                    <div class="col-12 col-md-3">
-                        <span class="d-md-none fw-bold">Müşteri: </span>
-                        @item.CLIENTNAME
+                    <!-- Müşteri -->
+                    <div class="break-words text-sm md:col-span-3">
+                        <span class="font-semibold md:hidden">Müşteri: </span>
+                        <div class="truncate text-sm font-medium text-slate-800">
+                            @item.CLIENTNAME
+                        </div>
                     </div>
 
-                    <div class="col-12 col-md-1">
-                        <span class="d-md-none fw-bold">Net Tutar: </span>
-                        @item.NETTOTAL.ToString("N2")
+                    <!-- Net Tutar -->
+                    <div class="text-right text-sm font-medium md:col-span-1">
+                        <span class="font-semibold md:hidden">Net Tutar: </span>
+                        <div class="text-sm font-semibold text-slate-800">
+                            @item.NETTOTAL.ToString("N2")
+                        </div>
                     </div>
 
-                    <div class="col-12 col-md-2 mt-2 mt-md-0">
+                    <!-- Actions -->
+                    <div class="flex justify-end gap-2 md:col-span-2">
                         <button type="button"
-                                class="btn btn-secondary btn-sm me-2"
-                                onclick="location.href='/Order/Edit/@item.LOGICALREF'">
+                                onclick="location.href='/Order/Edit/@item.LOGICALREF'"
+                                class="rounded-md bg-yellow-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-yellow-700">
                             Düzenle
                         </button>
 
                         <button type="button"
-                                class="btn btn-danger btn-sm removeLine">
+                                class="removeLine rounded-md bg-red-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700">
                             Sil
                         </button>
                     </div>
@@ -74,15 +100,13 @@
         }
         else
         {
-            <div class="text-center text-muted p-3">
+            <div class="rounded border border-dashed border-gray-300 p-6 text-center text-gray-500">
                 Hiç sipariş yok
             </div>
         }
     </div>
 </div>
 
-<script src="~/lib/jquery/dist/jquery.min.js"></script>
-<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
     // DELETE

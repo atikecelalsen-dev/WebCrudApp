@@ -1,35 +1,40 @@
 ﻿@model List<Library.Models.Client.ClientViewModel>
+@{
+    ViewBag.Title = "Müşteriler";
+} 
 
-<h2>Müşteri İşlemleri</h2>
+<h2 class="my-2 font-semibold text-black">Müşteri İşlemleri</h2>
 
 <form method="post">
 
     <!-- GİZLİ ID (AYNI) -->
     <input type="hidden" name="logicalRef" id="logicalRef" />
 
-    <div class="row g-3">
-        <div class="col-12 col-md-6">
-            <label>CODE:</label>
+    <div class="-mx-3 flex flex-wrap">
+        <div class="mb-3 w-full px-3 md:w-1/2">
+            <label class="mb-1 block font-medium">CODE:</label>
             <input type="text"
-                   class="form-control"
                    id="code"
                    name="CODE"
                    value="@ViewBag.Code"
-                   placeholder="000" />
-            <small class="text-muted">
+                   placeholder="000" 
+                   class="form-control w-full rounded border
+                    border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-700" />
+            <small class="mt-1 block text-gray-500">
                 Code must be unique, please check the list.
             </small>
         </div>
 
-        <div class="col-12 col-md-6">
-            <label>İSİM:</label>
+        <div class="mb-3 w-full px-3 md:w-1/2">
+            <label class="mb-1 block font-medium">İSİM:</label>
             <input type="text"
-                   class="form-control"
                    id="definition"
                    name="DEFINITION_"
                    value="@ViewBag.Definition"
-                   placeholder="Müşteri İsmi" />
-            <small class="text-muted">
+                   placeholder="Müşteri İsmi" 
+                    class="form-control w-full rounded border
+                    border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-700"/>
+            <small class="mt-1 block text-gray-500">
                 Please enter the Name of Client.
             </small>
         </div>
@@ -37,118 +42,86 @@
 
     <br />
 
-    <div class="alert alert-warning">
-        <strong>Lütfen yapacağınız işlemi seçin:</strong>
+    <div class="mt-4 rounded border border-yellow-200 bg-yellow-50 p-3 text-sm font-medium">
+        <a>Lütfen yapacağınız işlemi seçin:</a>
     </div>
 
     <!-- BUTONLAR (AYNI FORMACTION) -->
-    <div class="row g-2">
-        <div class="col-12 col-md">
+    <div class="mb-4 mt-6 flex flex-wrap gap-4">
             <button type="submit" formaction="/Client/Index"
-                    class="btn btn-primary w-100">
+                class="font-sm rounded-lg bg-green-500 px-6 py-2 text-white transition hover:bg-green-700
+                    focus:outline-none focus:ring-2 focus:ring-green-600" >
                 Listele
             </button>
-        </div>
-        <div class="col-12 col-md">
             <button type="submit" formaction="/Client/Create"
-                    class="btn btn-outline-success w-100">
+                    class="font-sm rounded-lg bg-blue-500 px-6 py-2 text-white transition hover:bg-blue-700
+                    focus:outline-none focus:ring-2 focus:ring-blue-600">
                 Ekle
             </button>
-        </div>
-        <div class="col-12 col-md">
             <button type="submit" formaction="/Client/Index"
-                    class="btn btn-secondary w-100">
+                    class="font-sm rounded-lg bg-gray-500 px-6 py-2 text-white transition hover:bg-gray-700
+                    focus:outline-none focus:ring-2 focus:ring-gray-600" >
                 Bul
             </button>
-        </div>
-        <div class="col-12 col-md">
+   
             <button type="submit" formaction="/Client/Update"
-                    class="btn btn-outline-warning w-100">
+                    class="font-sm rounded-lg bg-yellow-500 px-6 py-2 text-white transition hover:bg-yellow-700
+                    focus:outline-none focus:ring-2 focus:ring-yellow-600" >
                 Güncelle
             </button>
-        </div>
-        <div class="col-12 col-md">
             <button type="submit" formaction="/Client/Delete"
-                    class="btn btn-outline-danger w-100">
+                    class="font-sm rounded-lg bg-red-500 px-6 py-2 text-white transition hover:bg-red-700
+                    focus:outline-none focus:ring-2 focus:ring-red-600" >
                 Sil
             </button>
-        </div>
     </div>
-
 </form>
-
 <hr />
 
-<!-- =====================================================
-     DESKTOP / TABLET : ORİJİNAL TABLO (AYNI MANTIK)
-     ===================================================== -->
-<div class="d-none d-md-block"
-     style="max-height: 500px; overflow-y: auto; border: 1px solid #ddd">
 
-    <table class="table table-hover" border="1" style="border-collapse:collapse">
-        <thead>
-            <tr>
-                <th>LOGICALREF</th>
-                <th>CODE</th>
-                <th>İSİM</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr class="rowSelect"
-                    style="cursor:pointer"
-                    data-id="@item.LOGICALREF"
-                    data-code="@item.CODE"
-                    data-def="@item.DEFINITION_">
-
-                    <td>@item.LOGICALREF</td>
-                    <td>@item.CODE</td>
-                    <td>@item.DEFINITION_</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-</div>
-
-<!-- MOBILE : CARD-->
-<div class="d-block d-md-none">
-    <div class="row g-3">
-        @foreach (var item in Model)
-        {
-            <div class="col-12">
-                <div class="card rowSelect"
-                     style="cursor:pointer"
-                     data-id="@item.LOGICALREF"
-                     data-code="@item.CODE"
-                     data-def="@item.DEFINITION_">
-
-                    <div class="card-body">
-                        <h5 class="card-title mb-2">@item.CODE</h5>
-
-                        <p class="mb-1">
-                            <strong>ID:</strong> @item.LOGICALREF
-                        </p>
-
-                        <p class="mb-0">
-                            <strong>İsim:</strong> @item.DEFINITION_
-                        </p>
-                    </div>
-                </div>
-            </div>
-        }
+<div class="max-h-[500px] space-y-3 overflow-y-auto rounded-sm border border-gray-300 p-4">
+     <!-- Header (sadece desktop) -->
+    <div class="hidden px-4 text-sm font-bold text-gray-600 md:flex">
+        <div class="w-1/4">ID</div>
+        <div class="w-1/4">CODE</div>
+        <div class="w-2/4 px-4">İSİM</div>
     </div>
+    @foreach (var item in Model)
+    {
+        <div class="rowSelect cursor-pointer
+                   rounded-lg border border-gray-200 bg-white
+                   p-3 shadow-sm
+                   transition-all duration-200
+                   hover:border-blue-400 hover:shadow-md md:flex md:items-center md:gap-6"
+            data-id="@item.LOGICALREF"
+            data-code="@item.CODE"
+            data-def="@item.DEFINITION_">
+
+            <div class="text-sm font-semibold text-gray-600 md:w-1/4">
+                @item.CODE
+            </div>
+
+            <div class="text-sm text-gray-500 md:w-1/4">
+                <span class="font-medium text-gray-700 md:hidden">ID:</span>
+                @item.LOGICALREF
+            </div>
+
+            <div class="text-sm text-gray-800 md:w-2/4">
+                <span class="font-medium text-gray-900 md:hidden">İsim:</span>
+                @item.DEFINITION_
+            </div>
+        </div>
+    }
 </div>
 
 
-<script src="~/lib/jquery/dist/jquery.min.js"></script>
 
 <script>
     $(document).on("click", ".rowSelect", function () {
 
-        $(".rowSelect").removeClass("table-active border border-primary");
-        $(this).addClass("table-active border border-primary");
-
+        $(".rowSelect").removeClass("bg-blue-50 border-blue-600 ring-1 ring-blue-500");
+        $(this).addClass("bg-blue-50 border-blue-600 ring-1 ring-blue-500");
+        
         $("#logicalRef").val($(this).data("id"));
         $("#code").val($(this).data("code"));
         $("#definition").val($(this).data("def"));

@@ -29,8 +29,6 @@ namespace Library.Models.Order
             public decimal TOTALDISCOUNTED { get; set; }
        
      
-    
-
             public short BRANCH { get; set; }
             public short DEPARTMENT { get; set; }
 

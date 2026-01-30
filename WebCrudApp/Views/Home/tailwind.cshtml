@@ -1,0 +1,773 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="mx-auto max-w-4xl">
+    <!-- PAGE TITLE -->
+    <h1 class="text-4xl font-bold tracking-tight text-gray-900">
+        @*tracking-tight - harfler arası boşluğu (letter-spacing) azaltır *@
+        Tailwind Öğrenme Alanı
+    </h1>
+
+    <!-- DESCRIPTION -->
+    <p class="mt-4 text-lg leading-relaxed text-gray-600">
+        Bu sayfa Tailwind CSS ile MVC projelerinde modern, responsive ve
+        temiz arayüzler oluşturmayı öğrenmek için hazırlanmıştır.
+    </p>
+
+</div>
+
+@* TYPOGRAPHY & SPACING *@
+<div class="mt-12 rounded-xl bg-white p-6 shadow-lg">
+    @*mt-12: margin-top 12;
+        background - white;
+        padding - 6;
+        rounded-xl - yumuşak köşe;
+        shadow-lg - büyük gölge
+    *@
+
+    <h2 class="text-2xl font-semibold text-gray-800">
+        @*
+            font-thin	100	Çok ince
+            font-light	300	İnce
+            font-normal	400	Normal
+            font-medium	500	Bir tık kalın
+            font-semibold	600	🔥 Yarı kalın
+            font-bold	700	Kalın
+            font-extrabold	800	Çok kalın
+            font-black	900	En kalın
+        *@
+
+
+        Neler Öğreneceğiz?
+    </h2>
+
+    <ul class="mt-4 space-y-2 text-gray-600">
+        @*space-y-2 - alt-alta gelen elemanlarin arasina otomatik bosluk koyar*@
+        <li>• Responsive tasarım</li>
+        <li>• Grid ve card yapıları</li>
+        <li>• Table ve form stilleri</li>
+        <li>• Gerçek MVC senaryoları</li>
+    </ul>
+
+</div>
+
+@* Buton stillerini öğrenme alanı *@
+<div class="mt-12 rounded-xl bg-white p-6 shadow-lg">
+
+
+    <h2 class="text-2xl font-semibold text-gray-800">
+        Buton & Link Kullanımı
+    </h2>
+
+    <p class="mt-2 text-gray-600">
+        @*Butonlar kullanıcı etkileşimi için en kritik UI elemanlarıdır*@
+        Aşağıda Tailwind ile oluşturulmuş farklı buton örnekleri bulunmaktadır.
+    </p>
+
+    <!-- BUTTON GROUP -->
+    <div class="mt-6 flex flex-wrap gap-4">
+        @*
+            flex        : yan yana diz
+            flex-wrap   : küçük ekranda alta geçsin
+            gap-4       : butonlar arası boşluk
+        *@
+
+        <!-- PRIMARY BUTTON -->
+        <button class="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition hover:bg-blue-700
+                   focus:outline-none focus:ring-2 focus:ring-blue-400">
+            @*
+                bg-blue-600        : arka plan rengi
+                text-white        : yazı rengi
+                px-6 py-2          : yatay / dikey padding
+                rounded-lg        : köşe yumuşatma
+                font-medium       : buton yazısı için ideal kalınlık
+                hover:bg-blue-700 : mouse üzerine gelince
+                transition        : yumuşak geçiş
+                focus:ring-2      : klavye ile seçildiğinde halka
+            *@
+            Primary Button
+        </button>
+
+        <!-- SECONDARY BUTTON -->
+        <button class="rounded-lg border border-gray-300 px-6 py-2 text-gray-700 transition hover:bg-gray-100">
+            @*
+                border             : kenarlık
+                border-gray-300    : kenarlık rengi
+            *@
+            Secondary Button
+        </button>
+
+        <!-- DISABLED BUTTON -->
+        <button disabled
+                class="cursor-not-allowed rounded-lg bg-gray-300 px-6 py-2 text-gray-500">
+            @*
+                disabled            : HTML disabled
+                bg-gray-300         : pasif görünüm
+                text-gray-500       : soluk yazı
+                cursor-not-allowed  : yasak işareti
+            *@
+            Disabled Button
+        </button>
+
+        <!-- LINK STYLE BUTTON -->
+        <a href="#"
+           class="font-medium text-blue-600 hover:underline">
+            @*
+                a etiketi - link gibi davranır
+                hover:underline → üzerine gelince altı çizilir
+            *@
+            Link Button
+        </a>
+    </div>
+</div>
+
+@* GRID & CARD LAYOUT *@
+<div class="mt-12">
+    <h2 class="text-2xl font-semibold text-gray-800">
+        Grid & Card Yapısı
+    </h2>
+
+    <p class="mt-2 text-gray-600">
+        @*  Responsive kolon yapısı *@
+        Aşağıda örnek bir card grid yapısı bulunmaktadır.
+    </p>
+
+    <!-- GRID CONTAINER -->
+    <div class="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        @*
+            grid                : grid sistemini aktif eder
+            grid-cols-1         : mobilde tek kolon
+            sm:grid-cols-2      : ≥640px → 2 kolon
+            lg:grid-cols-3      : ≥1024px → 3 kolon
+            gap-6               : kartlar arası boşluk
+        *@
+
+        <!-- CARD 1 -->
+        <div class="rounded-xl bg-white p-6 shadow-md transition hover:shadow-lg">
+            @*
+                bg-white        : kart arka planı
+                p-6             : iç boşluk
+                rounded-xl      : yumuşak köşe
+                shadow-md       : orta seviye gölge
+                hover:shadow-lg : hover'da gölge artar
+            *@
+
+            <h3 class="text-lg font-semibold text-gray-800">
+                Card Başlık 1
+            </h3>
+
+            <p class="mt-2 text-gray-600">
+                Bu kart MVC Index sayfalarında
+                listelenen bir kaydı temsil edebilir.
+            </p>
+
+            <div class="mt-4 flex justify-end">
+                @*
+                    flex            : yatay dizilim
+                    justify-end     : sağa yasla
+                *@
+                <a href="#"
+                   class="font-medium text-blue-600 hover:text-gray-700 hover:underline">
+                    Detay
+                </a>
+            </div>
+        </div>
+
+        <!-- CARD 2 -->
+        <div class="rounded-xl bg-white p-6 shadow-md transition hover:shadow-lg">
+            <h3 class="text-lg font-semibold text-gray-800">
+                Card Başlık 2
+            </h3>
+
+            <p class="mt-2 text-gray-600">
+                Grid yapısı responsive olduğu için
+                ekran boyutuna göre otomatik uyum sağlar.
+            </p>
+
+            <div class="mt-4 flex justify-end">
+                <a href="#"
+                   class="font-medium text-blue-600 hover:underline">
+                    Detay
+                </a>
+            </div>
+        </div>
+
+        <!-- CARD 3 -->
+        <div class="rounded-xl bg-white p-6 shadow-md transition hover:shadow-lg">
+            <h3 class="text-lg font-semibold text-gray-800">
+                Card Başlık 3
+            </h3>
+
+            <p class="mt-2 text-gray-600">
+                Aynı yapı döngü ile
+                dinamik olarak üretilebilir.
+            </p>
+
+            <div class="mt-4 flex justify-end">
+                <a href="#"
+                   class="font-medium text-blue-600 hover:underline">
+                    Detay
+                </a>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@* Bu alan: Table (tablo) tasarımı *@
+<div class="mt-12 rounded-xl bg-white p-6 shadow-lg">
+    <h2 class="text-2xl font-semibold text-gray-800">
+        Tablo (Liste) Görünümü
+    </h2>
+
+    <p class="mt-2 text-gray-600">
+        Aşağıda örnek bir Tailwind tablo tasarımı bulunmaktadır.
+    </p>
+
+    <!-- TABLE WRAPPER -->
+    <div class="mt-6 w-full overflow-x-auto">
+        @*
+            overflow-x-auto : Küçük ekranlarda tablo taşarsa
+            yatay scroll açılır (responsive çözüm)
+        *@
+
+        <table class="min-w-[900px] rounded-lg border border-gray-200">
+           
+            <!-- TABLE HEADER -->
+            <thead class="bg-gray-100">
+                @*
+                    thead : Tablo başlık alanı
+                *@
+                <tr>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                        ID
+                    </th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                        Ad
+                    </th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                        Durum
+                    </th>
+                    <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">
+                        @*text-right : aksiyon kolonları sağa yaslanır*@
+                        İşlemler
+                    </th>
+                </tr>
+            </thead>
+
+            <!-- TABLE BODY -->
+            <tbody class="divide-y divide-gray-200">
+                @*
+                    divide-y : Satırlar arasına otomatik çizgi ekler
+                *@
+
+                <!-- ROW 1 -->
+                <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm text-gray-700">
+                        1
+                    </td>
+                    <td class="px-4 py-3 text-sm text-gray-700">
+                        Örnek Kayıt
+                    </td>
+                    <td class="px-4 py-3 text-sm">
+                        <span class="inline-block rounded-full bg-green-100 px-2 py-1 text-xs text-green-700">
+                            @*
+                                Badge kullanımı: Durum bilgileri için ideal
+                            *@
+                            Aktif
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-right text-sm">
+                        <a href="#" class="mr-3 text-blue-600 hover:underline">
+                            Detay
+                        </a>
+                        <a href="#" class="mr-3 text-yellow-600 hover:underline">
+                            Düzenle
+                        </a>
+                        <a href="#" class="text-red-600 hover:underline">
+                            Sil
+                        </a>
+                    </td>
+                </tr>
+
+                <!-- ROW 2 -->
+                <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm text-gray-700">
+                        2
+                    </td>
+                    <td class="px-4 py-3 text-sm text-gray-700">
+                        Pasif Kayıt
+                    </td>
+                    <td class="px-4 py-3 text-sm">
+                        <span class="inline-block rounded-full bg-gray-200 px-2 py-1 text-xs text-gray-700">
+                            Pasif
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-right text-sm">
+                        <a href="#" class="mr-3 text-blue-600 hover:underline">
+                            Detay
+                        </a>
+                        <a href="#" class="mr-3 text-yellow-600 hover:underline">
+                            Düzenle
+                        </a>
+                        <a href="#" class="text-red-600 hover:underline">
+                            Sil
+                        </a>
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+@* FORM ELEMANLARI (Input, Select, Button)  *@
+<div class="mt-12 max-w-xl rounded-xl bg-white p-6 shadow-lg">
+    @*
+        max-w-xl     : Form çok genişlemesin
+        bg-white     : Beyaz arka plan
+        p-6          : İç boşluk
+        rounded-xl  : Yumuşak köşe
+        shadow-lg   : Kart efekti
+    *@
+
+    <h2 class="mb-6 text-2xl font-semibold text-gray-800">
+        Yeni Kayıt Formu
+    </h2>
+
+    <!-- FORM -->
+    <form class="space-y-5">
+        @* space-y-5 : Form elemanları arasına dikey boşluk ekler *@
+
+        <!-- INPUT -->
+        <div>
+            <label class="mb-1 block text-sm font-medium text-gray-700">
+                Ad Soyad
+            </label>
+
+            <input type="text"
+                   placeholder="Adınızı girin"
+                   class="w-full rounded-lg border border-gray-300 px-4 py-2
+                          focus:border-blue-500 focus:outline-none focus:ring-2
+                          focus:ring-blue-500" />
+
+            @*
+                w-full              : Tam genişlik
+                border-gray-300     : Normal border
+                focus:ring-2        : Tıklanınca dış halka
+                focus:ring-blue-500 : Mavi focus efekti
+            *@
+        </div>
+
+        <!-- EMAIL -->
+        <div>
+            <label class="mb-1 block text-sm font-medium text-gray-700">
+                Email
+            </label>
+
+            <input type="email"
+                   placeholder="ornek@mail.com"
+                   class="w-full rounded-lg border border-gray-300 px-4 py-2
+                          focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+
+        <!-- SELECT -->
+        <div>
+            <label class="mb-1 block text-sm font-medium text-gray-700">
+                Durum
+            </label>
+
+            <select class="w-full rounded-lg border border-gray-300 px-4 py-2
+                           focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option>Aktif</option>
+                <option>Pasif</option>
+            </select>
+        </div>
+
+        <!-- BUTTONS -->
+        <div class="flex justify-end gap-3 pt-4">
+            @*
+                flex justify-end : Butonları sağa alır
+                gap-3           : Aralarına boşluk
+            *@
+
+            <button type="button"
+                    class="rounded-lg border border-gray-300 px-4 py-2
+                           text-gray-700 hover:bg-gray-100">
+                İptal
+            </button>
+
+            <button type="submit"
+                    class="rounded-lg bg-blue-600 px-4 py-2 text-white
+                           transition hover:bg-blue-700">
+                Kaydet
+            </button>
+        </div>
+
+    </form>
+</div>
+
+
+@* ALERT, BADGE & STATUS BİLEŞENLERİ *@
+
+<div class="mx-auto mt-12 max-w-4xl space-y-4">
+    @*
+        space-y-4 : Alert'ler arası dikey boşluk
+    *@
+
+    <!-- SUCCESS ALERT -->
+    <div class="flex items-center gap-3 rounded-lg bg-green-100 p-4 text-green-700">
+        <strong>Başarılı!</strong>
+        <span>Kayıt başarıyla eklendi.</span>
+    </div>
+
+    <!-- WARNING ALERT -->
+    <div class="flex items-center gap-3 rounded-lg bg-yellow-100 p-4 text-yellow-700">
+        <strong>Uyarı!</strong>
+        <span>Bu işlem geri alınamaz.</span>
+    </div>
+
+    <!-- ERROR ALERT -->
+    <div class="flex items-center gap-3 rounded-lg bg-red-100 p-4 text-red-700">
+        <strong>Hata!</strong>
+        <span>Bir şeyler ters gitti.</span>
+    </div>
+</div>
+
+<div class="mx-auto mt-8 max-w-4xl space-x-3">
+    @*
+        space-x-3 : Badge'ler yan yana boşluklu
+    *@
+
+    <span class="inline-block rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
+        Aktif
+    </span>
+
+    <span class="inline-block rounded-full bg-gray-200 px-3 py-1 text-xs font-semibold text-gray-700">
+        Pasif
+    </span>
+
+    <span class="inline-block rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
+        Silindi
+    </span>
+</div>
+
+@* Modal kullanımı *@
+<div class="mt-5 flex gap-5 rounded-lg border-2 border-gray-500 bg-white px-4 py-4 shadow-sm">
+    <a class="text-lg-center">Modal Örneği için tuşa bas</a>
+    <button id="openModalBtn"
+            class="rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700">
+        Kaydı Sil
+    </button>
+</div>
+
+<!-- MODAL BACKDROP -->
+<div id="modal"
+     class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50">
+    @*
+        fixed inset-0 : Ekranın tamamını kaplar
+        bg-black/50   : Yarı saydam arka plan
+        hidden        : Başta gizli
+        z-50          : Üstte kalır
+    *@
+
+    <!-- MODAL BOX -->
+    <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-lg">
+        @*
+            max-w-md : Modal çok geniş olmasın
+            p-6      : İç boşluk
+        *@
+
+        <h3 class="mb-4 text-xl font-semibold text-gray-800">
+            Silme Onayı
+        </h3>
+
+        <p class="mb-6 text-gray-600">
+            Bu kaydı silmek istediğinize emin misiniz?
+            Bu işlem geri alınamaz.
+        </p>
+
+        <!-- ACTIONS -->
+        <div class="flex justify-end gap-3">
+            <button id="closeModalBtn"
+                    class="rounded-lg border border-gray-300 px-4 py-2
+                           text-gray-700 hover:bg-gray-100">
+                İptal
+            </button>
+
+            <button class="rounded-lg bg-red-600 px-4 py-2 text-white
+                           hover:bg-red-700">
+                Evet, Sil
+            </button>
+        </div>
+    </div>
+</div>
+
+@* Table yerine div kullanımı *@
+
+@{
+    ViewData["Title"] = "Responsive Liste";
+}
+
+<div class="mx-auto mt-12 max-w-6xl overflow-x-auto px-4">
+    @*
+        overflow-x-auto :
+        Beklenmedik taşmalarda scroll açılır (fallback)
+    *@
+
+    <h1 class="mb-6 text-2xl font-semibold text-gray-800">
+        Kayıt Listesi
+    </h1>
+
+    <!-- HEADER (SADECE DESKTOP) -->
+    <div class="hidden gap-4 rounded-t-lg bg-gray-100 px-4
+                py-3 text-sm font-semibold text-gray-700 md:grid md:grid-cols-12">
+    @* Sadece md-den buyuk oldugunda gozukur *@
+    
+        <div class="col-span-1">ID</div>
+        <div class="col-span-4">Ad</div>
+        <div class="col-span-3">Durum</div>
+        <div class="col-span-4 text-right">İşlemler</div>
+    </div>
+
+    <!-- ROW -->
+    <div class="grid grid-cols-1 gap-4 border-b
+                px-4 py-4 hover:bg-gray-50 md:grid-cols-12">
+
+        @*
+            grid-cols-1        : Mobil → ALT ALTA
+            md:grid-cols-12    : Desktop → YAN YANA
+        *@
+
+        <!-- ID -->
+        <div class="md:col-span-1">
+            <span class="block text-xs text-gray-500 md:hidden">
+                ID @*md-den kucuk oldugunda gozukur*@
+            </span>
+            <span class="text-sm text-gray-700">
+                1
+            </span>
+        </div>
+
+        <!-- NAME -->
+        <div class="md:col-span-4">
+            <span class="block text-xs text-gray-500 md:hidden">
+                Ad
+            </span>
+            <span class="text-sm font-medium text-gray-700">
+                Örnek Kayıt
+            </span>
+        </div>
+
+        <!-- STATUS -->
+        <div class="md:col-span-3">
+            <span class="block text-xs text-gray-500 md:hidden">
+                Durum
+            </span>
+
+            <span class="inline-block rounded-full bg-green-100
+                         px-2 py-1 text-xs font-semibold text-green-700">
+                Aktif
+            </span>
+        </div>
+
+        <!-- ACTIONS -->
+        <div class="md:col-span-4 md:text-right">
+            <span class="mb-1 block text-xs text-gray-500 md:hidden">
+                İşlemler
+            </span>
+
+            <a href="#" class="mr-3 text-blue-600 hover:underline">
+                Detay
+            </a>
+            <a href="#" class="mr-3 text-yellow-600 hover:underline">
+                Düzenle
+            </a>
+            <a href="#" class="text-red-600 hover:underline">
+                Sil
+            </a>
+        </div>
+    </div>
+
+    <!-- ROW 2 -->
+    <div class="grid grid-cols-1 gap-4 border-b
+                px-4 py-4 hover:bg-gray-50 md:grid-cols-12">
+
+        <div class="md:col-span-1">
+            <span class="block text-xs text-gray-500 md:hidden">ID</span>
+            2
+        </div>
+
+        <div class="md:col-span-4">
+            <span class="block text-xs text-gray-500 md:hidden">Ad</span>
+            Pasif Kayıt
+        </div>
+
+        <div class="md:col-span-3">
+            <span class="block text-xs text-gray-500 md:hidden">Durum</span>
+            <span class="inline-block rounded-full bg-gray-200
+                         px-2 py-1 text-xs font-semibold text-gray-700">
+                Pasif
+            </span>
+        </div>
+
+        <div class="md:col-span-4 md:text-right">
+            <span class="mb-1 block text-xs text-gray-500 md:hidden">
+                İşlemler
+            </span>
+
+            <a href="#" class="mr-3 text-blue-600 hover:underline">
+                Detay
+            </a>
+            <a href="#" class="mr-3 text-yellow-600 hover:underline">
+                Düzenle
+            </a>
+            <a href="#" class="text-red-600 hover:underline">
+                Sil
+            </a>
+        </div>
+    </div>
+
+</div>
+
+
+
+@* Modal açma *@
+<script>
+    const modal = document.getElementById("modal");
+    const openBtn = document.getElementById("openModalBtn");
+    const closeBtn = document.getElementById("closeModalBtn");
+
+    openBtn.addEventListener("click", () => {
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+    });
+
+    closeBtn.addEventListener("click", () => {
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+    });
+
+    // Arka plana tıklanınca kapansın
+    modal.addEventListener("click", (e) => {
+        if (e.target === modal) {
+            modal.classList.add("hidden");
+            modal.classList.remove("flex");
+        }
+    });
+</script>
+
+
+
+@* 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - TailwindWebApplication</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="flex min-h-screen flex-col bg-gray-100 text-gray-900">
+
+    <header class="bg-white shadow">
+        <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+
+            <!-- LOGO -->
+            <a asp-controller="Home" asp-action="Index"
+               class="text-2xl font-bold text-blue-600">
+                TailwindMVC
+            </a>
+
+            <!-- DESKTOP MENU -->
+            <nav class="hidden items-center gap-6 md:flex">
+                @* Default-hidden, md:flex-yani media 768 pixelden buyuk ise flex yani
+                navbar yan-yana gorunur sekilde. 
+                <a asp-controller="Home" asp-action="Index"
+                   class="font-medium text-gray-700 hover:text-blue-600">
+                @*txt rengi gri-700, ama yazinin uzerine geldigimizde blue-600, fon-orta 
+                    Home
+                </a>
+
+                <a asp-controller="Home" asp-action="Privacy"
+                   class="font-medium text-gray-700 hover:text-blue-600">
+                    Privacy
+                </a>
+
+                <a href="#"
+                   class="rounded-lg bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700">
+                    Login
+                </a>
+            </nav>
+
+            <!-- MOBILE BUTTON -->
+            <button id="menuBtn"
+                    class="text-gray-700 focus:outline-none md:hidden">
+                @* md:flex-yani media 768 pixelden buyuk ise gorunmez. 
+
+                <!-- Hamburger icon -->
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     class="h-7 w-7"
+                     fill="none"
+                     viewBox="0 0 24 24"
+                     stroke="currentColor">
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- MOBILE MENU -->
+        <div id="mobileMenu"
+             class="hidden space-y-4 border-t bg-white px-6 py-4 md:hidden">
+
+            <a asp-controller="Home" asp-action="Index"
+               class="block font-medium text-gray-700">
+                Home
+            </a>
+
+            <a asp-controller="Home" asp-action="Privacy"
+               class="block font-medium text-gray-700">
+                Privacy
+            </a>
+
+            <a href="#"
+               class="block rounded-lg bg-blue-600 py-2 text-center text-white">
+                Login
+            </a>
+        </div>
+    </header>
+
+
+    <!-- CONTENT -->
+    <main class="mx-auto max-w-7xl flex-grow px-6 py-8">
+        @RenderBody()
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="mt-10 border-t py-4 text-center text-sm text-gray-500">
+        © 2026 - TailwindWebApplication
+    </footer>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+    <script>
+        const btn = document.getElementById("menuBtn");
+        const menu = document.getElementById("mobileMenu");
+
+        btn.addEventListener("click", () => {
+            menu.classList.toggle("hidden");
+        });
+    </script>
+
+
+</body>
+</html>
+*@

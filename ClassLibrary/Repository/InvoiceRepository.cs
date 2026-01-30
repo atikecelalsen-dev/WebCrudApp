@@ -331,7 +331,6 @@ namespace Library.Repository
             }
         }
 
-
         public InvoiceCreateViewModel? GetInvoiceForEdit(int invoiceRef)
         {
             var model = new InvoiceCreateViewModel();

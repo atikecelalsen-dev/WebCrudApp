@@ -1,196 +1,150 @@
-﻿@model Library.Models.Invoice.InvoiceCreateViewModel
-
+﻿
+@model Library.Models.Invoice.InvoiceCreateViewModel
 @{
-    bool isEdit = Model.Header.LOGICALREF > 0;
+     bool isEdit = Model.Header.LOGICALREF > 0;
+    ViewBag.Title = (isEdit ? "Fatura Düzenle" : "Yeni Fatura");
 }
-<h3>@(isEdit ? "Fatura Düzenle" : "Yeni Fatura")</h3>
 
-<form method="post" id="itemForm"
-      action="@(isEdit ? "/Invoice/Edit" : "/Invoice/Create")">
+
+<h3 class="mb-4 text-xl font-semibold text-slate-800">
+    @(isEdit ? "Fatura Düzenle" : "Yeni Fatura")
+</h3>
+
+<form method="post"
+      id="itemForm"
+      action="@(isEdit ? "/Invoice/Edit" : "/Invoice/Create")"
+      class="space-y-6">
 
     @Html.AntiForgeryToken()
 
     <!-- HEADER -->
-    <div class="header-section mb-3">
+    <div class="rounded-lg border border-black bg-gray-50 p-5 shadow-md">
         <input type="hidden" name="Header.LOGICALREF" value="@Model.Header.LOGICALREF" />
 
-        <div class="row">
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label>Invoice Type:</label>
+        <div class="grid gap-4 md:grid-cols-2">
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-sm font-medium">Invoice Type</label>
                     @Html.DropDownListFor(
-                    m => m.Header.GRPCODE,
+                        m => m.Header.GRPCODE,
                         Model.InvoiceTypes,
                         "-- Seçiniz --",
-                        new { @class = "form-control", id = "invoiceTypeSelect" })  
+                        new { @class = "w-full rounded border px-3 py-2 bg-white", id = "invoiceTypeSelect" })
                 </div>
-                <input type="hidden" id="TRCODE" name="Header.TRCODE"
-                       value="@Model.Header.TRCODE" />
-                <div class="form-group">
-                    <label>Tarih:</label>
+
+                <input type="hidden" id="TRCODE" name="Header.TRCODE" value="@Model.Header.TRCODE" />
+
+                <div>
+                    <label class="block text-sm font-medium">Tarih</label>
                     <input type="date"
                            name="Header.DATE_"
-                           class="form-control"
                            id="DATE_"
-                           value="@(Model.Header.DATE_.ToString("yyyy-MM-dd"))" />
+                           value="@Model.Header.DATE_.ToString("yyyy-MM-dd")"
+                           class="w-full rounded border bg-white px-3 py-2" />
                 </div>
+
                 <input type="hidden" name="Header.TIME_" id="TIME_" />
             </div>
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label>Fatura Numarası:</label>
+
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-sm font-medium">Fatura Numarası</label>
                     <input type="text"
                            name="Header.FICHENO"
-                           class="form-control"
                            value="@Model.Header.FICHENO"
+                           class="w-full rounded border bg-white px-3 py-2"
                            placeholder="00000000001" />
                 </div>
-                <div class="form-group">
-                    <label>Müşteri:</label>
+
+                <div>
+                    <label class="block text-sm font-medium">Müşteri</label>
                     @Html.DropDownListFor(
-                                        m => m.Header.CLIENTREF,
-                                        Model.Clients,
-                                        "-- Seçiniz --",
-                                        new { @class = "form-control" })
+                        m => m.Header.CLIENTREF,
+                        Model.Clients,
+                        "-- Seçiniz --",
+                        new { @class = "w-full rounded border px-3 py-2 bg-white" })
                 </div>
             </div>
         </div>
     </div>
 
     <!-- LINE ITEMS -->
-    <div class="line-items-section mb-3">
-        <div id="lineItemsBody">
+    <div class="rounded-lg border border-black bg-gray-50 p-5 shadow-md">
+        <div id="lineItemsBody" class="space-y-3">
 
-            @if (Model.Lines != null && Model.Lines.Any())
+            @for (int i = 0; i < (Model.Lines?.Count ?? 1); i++)
             {
-                for (int i = 0; i < Model.Lines.Count; i++)
-                {
-                    <div class="line-row border p-2 mb-2" data-index="@i">
-                        <div class="row g-2">
+                var line = Model.Lines != null && Model.Lines.Any()
+                    ? Model.Lines[i]
+                    : new Library.Models.Invoice.InvoiceLineModel();
 
-                            <!-- PRODUCT -->
-                            <div class="col-md-3">
-                                <label>Malzeme</label>
-                                <select name="Lines[@i].STOCKREF"
-                                        class="form-control productSelect"
-                                        data-selected="@Model.Lines[i].STOCKREF">
-                                </select>
-                            </div>
+                <div class="line-row rounded border bg-gray-50 p-3 shadow-sm" data-index="@i">
+                    <div class="grid gap-3 md:grid-cols-12">
 
-                            <!-- AMOUNT -->
-                            <div class="col-md-1">
-                                <label>Miktar</label>
-                                <input type="number"
-                                       name="Lines[@i].AMOUNT"
-                                       class="form-control"
-                                       value="@Model.Lines[i].AMOUNT" />
-                            </div>
-
-                            <!-- UNIT -->
-                            <div class="col-md-2">
-                                <label>Birim</label>
-                                <select class="form-control unitSelect"
-                                        data-uom="@Model.Lines[i].UOMREF"
-                                        data-us="@Model.Lines[i].USREF">
-                                    <option value="">-- Seçiniz --</option>
-                                </select>
-
-                                <input type="hidden" name="Lines[@i].UOMREF" value="@Model.Lines[i].UOMREF" />
-                                <input type="hidden" name="Lines[@i].USREF" value="@Model.Lines[i].USREF" />
-                            </div>
-
-                            <!-- PRICE -->
-                            <div class="col-md-2">
-                                <label>Birim Fiyat</label>
-                                <input type="number"
-                                       name="Lines[@i].PRICE"
-                                       class="form-control"
-                                       value="@Model.Lines[i].PRICE" />
-                            </div>
-
-                            <!-- VAT -->
-                            <div class="col-md-1">
-                                <label>KDV %</label>
-                                <input type="number"
-                                       name="Lines[@i].VAT"
-                                       class="form-control"
-                                       value="@Model.Lines[i].VAT" />
-                            </div>
-
-                            <!-- VAT AMOUNT -->
-                            <div class="col-md-1">
-                                <label>KDV</label>
-                                <input type="number"
-                                       name="Lines[@i].VATAMNT"
-                                       class="form-control"
-                                       readonly />
-                            </div>
-
-                            <!-- LINE NET -->
-                            <div class="col-md-1">
-                                <label>Tutar</label>
-                                <input type="number"
-                                       name="Lines[@i].LINENET"
-                                       class="form-control"
-                                       readonly />
-                            </div>
-
-                            <!-- DELETE -->
-                            <div class="col-md-1 d-flex align-items-end">
-                                <button type="button" class="btn btn-danger removeLine">Sil</button>
-                            </div>
-
-                        </div>
-                    </div>
-                }
-            }
-            else
-            {
-                <div class="line-row border p-2 mb-2" data-index="0">
-                    <div class="row g-2">
-                        <div class="col-md-3">
-                            <label>Malzeme</label>
-                            <select name="Lines[0].STOCKREF"
-                                    class="form-control productSelect"
-                                    accesskey=""></select>
+                        <div class="md:col-span-3">
+                            <label class="text-sm font-medium">Malzeme</label>
+                            <select name="Lines[@i].STOCKREF"
+                                    class="productSelect w-full rounded border px-2 py-1"
+                                    data-selected="@line.STOCKREF"></select>
                         </div>
 
-                        <div class="col-md-1">
-                            <label>Miktar</label>
-                            <input type="number" name="Lines[0].AMOUNT" class="form-control" />
+                        <div class="md:col-span-1">
+                            <label class="text-sm font-medium">Miktar</label>
+                            <input type="number"
+                                   name="Lines[@i].AMOUNT"
+                                   value="@line.AMOUNT"
+                                   class="w-full rounded border px-2 py-1" />
                         </div>
 
-                        <div class="col-md-2">
-                            <label>Birim</label>
-                            <select class="form-control unitSelect">
+                        <div class="md:col-span-2">
+                            <label class="text-sm font-medium">Birim</label>
+                            <select class="unitSelect w-full rounded border px-2 py-1"
+                                    data-uom="@line.UOMREF"
+                                    data-us="@line.USREF">
                                 <option value="">-- Seçiniz --</option>
                             </select>
-                            <input type="hidden" name="Lines[0].UOMREF" value="0" />
-                            <input type="hidden" name="Lines[0].USREF" value="0" />
+
+                            <input type="hidden" name="Lines[@i].UOMREF" value="@line.UOMREF" />
+                            <input type="hidden" name="Lines[@i].USREF" value="@line.USREF" />
                         </div>
 
-                        <div class="col-md-2">
-                            <label>Fiyat</label>
-                            <input type="number" name="Lines[0].PRICE" class="form-control" />
+                        <div class="md:col-span-2">
+                            <label class="text-sm font-medium">Fiyat</label>
+                            <input type="number"
+                                   name="Lines[@i].PRICE"
+                                   value="@line.PRICE"
+                                   class="w-full rounded border px-2 py-1" />
                         </div>
 
-                        <div class="col-md-1">
-                            <label>KDV %</label>
-                            <input type="number" name="Lines[0].VAT" class="form-control" value="20" />
+                        <div class="md:col-span-1">
+                            <label class="text-sm font-medium">KDV %</label>
+                            <input type="number"
+                                   name="Lines[@i].VAT"
+                                   value="@(line.VAT == 0 ? 20 : line.VAT)"
+                                   class="w-full rounded border px-2 py-1" />
                         </div>
 
-                        <div class="col-md-1">
-                            <label>KDV</label>
-                            <input type="number" name="Lines[0].VATAMNT" class="form-control" readonly />
+                        <div class="md:col-span-1">
+                            <label class="text-sm font-medium">KDV</label>
+                            <input type="number"
+                                   name="Lines[@i].VATAMNT"
+                                   class="w-full rounded border bg-gray-100 px-2 py-1"
+                                   readonly />
                         </div>
 
-                        <div class="col-md-1">
-                            <label>Tutar</label>
-                            <input type="number" name="Lines[0].LINENET" class="form-control" readonly />
+                        <div class="md:col-span-1">
+                            <label class="text-sm font-medium">Tutar</label>
+                            <input type="number"
+                                   name="Lines[@i].LINENET"
+                                   class="w-full rounded border bg-gray-100 px-2 py-1"
+                                   readonly />
                         </div>
 
-                        <div class="col-md-1 d-flex align-items-end">
-                            <button type="button" class="btn btn-danger removeLine">Sil</button>
+                        <div class="flex items-end md:col-span-1">
+                            <button type="button"
+                                    class="removeLine w-full rounded bg-red-500 px-2 py-1 text-white hover:bg-red-600">
+                                Sil
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -198,148 +152,199 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="col d-flex justify-content-start">
-            <button type="button" class="btn btn-primary" id="addLineItem">Yeni Satır Ekle</button>
-        </div>
+    <!-- ACTIONS -->
+    <div class="flex items-center justify-between">
+        <button type="button"
+                id="addLineItem"
+                class="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700">
+            Yeni Satır Ekle
+        </button>
 
-        <div class="col d-flex align-items-center justify-content-end">
-            <label>INDIRIM:  </label>
-            <div style="margin-left:20px;" class="input-group">
-                <input type="number" id="discountValue" class="form-control" value="0" min="0" />
-                <select id="discountType" class="form-select">
-                    <option value="percent">%</option>
-                    <option value="amount">Tutar</option>
-                </select>
-            </div>
-        </div>
-    </div>
-    <br/>
-
-    <!-- ALT TOPLAM & İNDİRİM -->
-    <div class="d-flex justify-content-end">
-        <div class="col-md-3">
-            <div class="col-mb-3">
-                <div class="row d-flex align-items-center" style="border:1px solid #dee2e6; padding:0; margin:0;">
-                    <div class="col-6 justify-content-start">
-                        <label>TOPLAM TUTAR</label>
-                    </div>
-                    <div class=" col-6 justify-content-end">
-                        <input class="form-control" type="text" id="GrossTotal" name="Header.GROSSTOTAL" readonly value="0" />
-                    </div>
-                </div>
-                <div class="row d-flex align-items-center" style="border:1px solid #dee2e6; padding:0; margin:0;">
-                    <div class="col-6 justify-content-start">
-                        <label>TOPLAM KDV</label>
-                    </div>
-                    <div class=" col-6 justify-content-end">
-                        <input type="text" id="TotalVAT" name="Header.TOTALVAT" class="form-control" readonly value="0" />
-                    </div>
-                </div>
-
-                <div class="row d-flex align-items-center" style="border:1px solid #dee2e6; padding:0; margin:0;">
-                    <div class="col-6 justify-content-start">
-                        <label>TOPLAM INDIRIM</label>
-                    </div>
-                    <div class=" col-6 justify-content-end">
-                        <input type="text" id="discount" class="form-control" readonly value="0" />
-                    </div>
-                </div>
-
-                <div class="row d-flex align-items-center" style="border:1px solid #dee2e6; padding:0; margin:0;">
-                    <div class="col-6 justify-content-start">
-                        <label>NET TUTAR</label>
-                    </div>
-                    <div class=" col-6 justify-content-end">
-                        <input class="form-control" type="text" id="NetTotal" name="Header.NETTOTAL" readonly value="0" />
-                    </div>
-                </div>
-            </div>
-
-            <input type="hidden" id="ADDDISCOUNTS"
-                   name="Header.ADDDISCOUNTS"
-                   value="@Model.Header.ADDDISCOUNTS" />
-
-            <input type="hidden" id="TOTALDISCOUNTS"
-                   name="Header.TOTALDISCOUNTS"
-                   value="@Model.Header.TOTALDISCOUNTS" />
-
-            <input type="hidden" id="TOTALDISCOUNTED"
-                   name="Header.TOTALDISCOUNTED"
-                   value="@Model.Header.TOTALDISCOUNTED" />
-
-            <input type="hidden" id="ReportNet"
-                   name="Header.REPORTNET"
-                   value="@Model.Header.REPORTNET" />
+        <div class="flex w-1/3 items-center gap-2 sm:w-2/3 md:w-1/2">
+            <label class="w-1/4 font-semibold">İNDİRİM</label>
+            <input type="number"
+                   id="discountValue"
+                   class="w-2/4 rounded border px-2 py-1"
+                   value="0"/>
+            <select id="discountType"
+                    class="w-1/4 rounded border px-2 py-1">
+                <option value="percent">%</option>
+                <option value="amount">Tutar</option>
+            </select>
         </div>
     </div>
-    <br />
 
-    <div class="d-flex justify-content-end">
+    <!-- TOTALS -->
+   <div class="flex justify-end">
+    <div class="w-1/3 overflow-hidden rounded-lg border border-black
+            bg-gray-50 shadow-md sm:w-2/3 md:w-1/2">
+
+        <!-- TOPLAM TUTAR -->
+        <div class="m-3 flex items-center">
+            <div class="w-1/2 px-2">
+                <label class="text-sm font-semibold">TOPLAM TUTAR</label>
+            </div>
+            <div class="w-1/2 px-2">
+                <input type="text"
+                       id="GrossTotal"
+                       name="Header.GROSSTOTAL"
+                       readonly
+                       value="0"
+                       class="w-full rounded border bg-white px-2 py-1 text-right" />
+            </div>
+        </div>
+
+        <!-- TOPLAM KDV -->
+        <div class="m-3 flex items-center">
+            <div class="w-1/2 px-2">
+                <label class="text-sm font-semibold">TOPLAM KDV</label>
+            </div>
+            <div class="w-1/2 px-2">
+                <input type="text"
+                       id="TotalVAT"
+                       name="Header.TOTALVAT"
+                       readonly
+                       value="0"
+                       class="w-full rounded border bg-white px-2 py-1 text-right" />
+            </div>
+        </div>
+
+        <!-- TOPLAM İNDİRİM -->
+        <div class="m-3 flex items-center">
+            <div class="w-1/2 px-2">
+                <label class="text-sm font-semibold">TOPLAM İNDİRİM</label>
+            </div>
+            <div class="w-1/2 px-2">
+                <input type="text"
+                       id="discount"
+                       readonly
+                       value="0"
+                       class="w-full rounded border bg-white px-2 py-1 text-right" />
+            </div>
+        </div>
+
+        <!-- NET TUTAR -->
+        <div class="m-3 flex items-center">
+            <div class="w-1/2 px-2">
+                <label class="text-sm font-semibold">NET TUTAR</label>
+            </div>
+            <div class="w-1/2 px-2">
+                <input type="text"
+                       id="NetTotal"
+                       name="Header.NETTOTAL"
+                       readonly
+                       value="0"
+                       class="w-full rounded border bg-white px-2 py-1 text-right" />
+            </div>
+        </div>
+
+
+            <input type="hidden" id="ADDDISCOUNTS" name="Header.ADDDISCOUNTS" value="@Model.Header.ADDDISCOUNTS" />
+            <input type="hidden" id="TOTALDISCOUNTS" name="Header.TOTALDISCOUNTS" value="@Model.Header.TOTALDISCOUNTS" />
+            <input type="hidden" id="TOTALDISCOUNTED" name="Header.TOTALDISCOUNTED" value="@Model.Header.TOTALDISCOUNTED" />
+            <input type="hidden" id="ReportNet" name="Header.REPORTNET" value="@Model.Header.REPORTNET" />
+        </div>
+    </div>
+
+    <!-- SUBMIT -->
+    <div class="flex justify-end">
         @if (isEdit)
         {
-            <button type="button" id="btnUpdate" class="btn btn-secondary">Güncelle</button>
+            <button type="button"
+                    id="btnUpdate"
+                    class="rounded bg-yellow-600 px-6 py-2 text-white hover:bg-yellow-700">
+                Güncelle
+            </button>
         }
         else
         {
-            <button type="button" id="btnSave" class="btn btn-primary">Kaydet</button>
+            <button type="button"
+                    id="btnSave"
+                    class="rounded bg-green-600 px-6 py-2 text-white hover:bg-green-700">
+                Kaydet
+            </button>
         }
     </div>
 </form>
 
-<br />
-<div class="modal fade" id="invoiceItemModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-xl" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Malzeme ve Stoklar</h5>
-                <button type="button" class="close"
-                        onclick="$('#invoiceItemModal').modal('hide')"
-                        data-dismiss="modal">
-                    &times;
-                </button>
-            </div>
-            <div class="modal-body">
-                <table class="table table-bordered" id="invoiceItemModalTable">
-                    <thead>
-                        <tr>
-                            <th>Kodu</th>
-                            <th>Ürün Adı</th>
-                            <th>Stok</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in Model.Items)
-                        {
-                            <tr class="selectable-item" data-ref="@item.Value" data-name="@item.Text">
-                                <td>@item.Code</td>
-                                <td>@item.Text</td>
-                                <td>@item.OnHand</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
+<!-- ITEM MODAL -->
+<div id="invoiceItemModal"
+     class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 backdrop-blur-sm">
+    <div class="relative w-1/3 overflow-hidden rounded-xl border
+        border-black bg-white shadow-2xl sm:w-2/3 md:w-1/2">
+        
+        <!-- HEADER -->
+        <div class="flex items-center justify-between border-b bg-slate-50 px-6 py-4">
+            <h5 class="text-lg font-semibold text-slate-800">
+                Malzeme ve Stoklar
+            </h5>
+            <button type="button"
+                    onclick="closeInvoiceItemModal()"
+                    class="text-2xl font-bold text-gray-500 hover:text-gray-700">
+                &times;
+            </button>
         </div>
+
+        <!-- BODY -->
+        <div class="max-h-[70vh] overflow-auto bg-gray-100 p-4">
+            <table class="w-full overflow-hidden rounded-lg border border-slate-200 text-sm"
+                   id="invoiceItemModalTable">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="border-b px-3 py-2 text-left">Kodu</th>
+                        <th class="border-b px-3 py-2 text-left">Ürün Adı</th>
+                        <th class="border-b px-3 py-2 text-right">Stok</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr class="selectable-item cursor-pointer bg-white hover:bg-blue-50"
+                            data-ref="@item.Value"
+                            data-name="@item.Text">
+                        
+
+                            <td class="px-3 py-2 font-medium text-slate-800">
+                                @item.Code
+                            </td>
+
+                            <td class="px-3 py-2 text-slate-700">
+                                @item.Text
+                            </td>
+
+                            <td class="px-3 py-2 text-right font-semibold text-slate-800">
+                                @item.OnHand
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
     </div>
-</div>
-
-<script src="~/lib/jquery/dist/jquery.min.js"></script>
-<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-
+</div> 
 
 <script>
         let lineIndex = $(".line-row").length;
         const productUnits = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.ProductUnits));
 
         $(document).ready(function () {
-              const dbDiscount = parseFloat($("#TOTALDISCOUNTS").val()) || 0;
-              console.log("DB Discount =", dbDiscount);
-          if (dbDiscount > 0) {
-              $("#discountValue").val(dbDiscount);
-              $("#discountType").val("amount");
-          }
+            const dbDiscount = parseFloat($("#TOTALDISCOUNTS").val()) || 0;
 
+            recalcTotals();
+            const gross = parseFloat($("#GrossTotal").val()) || 0;
+                console.log(gross + "ve "+ dbDiscount)
+           const percent = (dbDiscount / gross) * 100;
+            if (dbDiscount > 0 && Number.isInteger(percent)) {
+                $("#discountValue").val(percent);
+                $("#discountType").val("percent");
+                
+            } else {
+                $("#discountValue").val(dbDiscount);
+                $("#discountType").val("amount");
+                
+            }
+        
 
           $(".productSelect").each(function () {
                   const select = $(this);
@@ -373,6 +378,36 @@
 
               recalcTotals();
           });
+
+          function openInvoiceItemModal() {
+                $("#invoiceItemModal")
+                    .removeClass("hidden")
+                    .addClass("flex");
+            }
+
+            function closeInvoiceItemModal() {
+                $("#invoiceItemModal")
+                    .addClass("hidden")
+                    .removeClass("flex");
+            }
+
+
+         function reindexInvoiceLines() {
+            $('#lineItemsBody .line-row').each(function (index) {
+
+            // data-index güncelle
+            $(this).attr('data-index', index);
+
+            // input & select name'lerini güncelle
+            $(this).find('input, select').each(function () {
+                var name = $(this).attr('name');
+                if (!name) return;
+
+                var newName = name.replace(/Lines\[\d+\]/, 'Lines[' + index + ']');
+                $(this).attr('name', newName);
+            });
+        });
+    }
 
         function fillUnits(productSelect) {
             const row = $(productSelect).closest(".line-row");
@@ -435,68 +470,87 @@
             updateLinePrice(row);
         });
 
+$("#addLineItem").click(function () {
 
+    const row = `
+    <div class="line-row mb-2 rounded border p-3" data-index="${lineIndex}">
+        <div class="grid gap-3 md:grid-cols-12">
 
-    // Yeni satır ekleme
-    $("#addLineItem").click(function () {
-        const row = `
-        <div class="line-row border p-2 mb-2" data-index="${lineIndex}">
-            <div class="row g-2">
-                <div class="col-md-3">
-                    <label>Malzeme</label>
-                    <select name="Lines[${lineIndex}].STOCKREF"
-                            class="form-control productSelect"></select>
-                </div>
-
-                <div class="col-md-1">
-                    <label>Miktar</label>
-                    <input type="number" name="Lines[${lineIndex}].AMOUNT" class="form-control" />
-                </div>
-
-                <div class="col-md-2">
-                    <label>Birim</label>
-                    <select class="form-control unitSelect">
-                        <option value="">-- Seçiniz --</option>
-                    </select>
-                    <input type="hidden" name="Lines[${lineIndex}].UOMREF" value="0" />
-                    <input type="hidden" name="Lines[${lineIndex}].USREF" value="0" />
-                </div>
-
-                <div class="col-md-2">
-                    <label>Fiyat</label>
-                    <input type="number" name="Lines[${lineIndex}].PRICE" class="form-control" />
-                </div>
-
-                <div class="col-md-1">
-                    <label>KDV %</label>
-                    <input type="number" name="Lines[${lineIndex}].VAT" class="form-control" value="20" />
-                </div>
-
-                <div class="col-md-1">
-                    <label>KDV</label>
-                    <input type="number" name="Lines[${lineIndex}].VATAMNT" class="form-control" readonly />
-                </div>
-
-                <div class="col-md-1">
-                    <label>Tutar</label>
-                    <input type="number" name="Lines[${lineIndex}].LINENET" class="form-control" readonly />
-                </div>
-
-                <div class="col-md-1 d-flex align-items-end">
-                    <button type="button" class="btn btn-danger removeLine">Sil</button>
-                </div>
+            <div class="md:col-span-3">
+                <label class="text-sm">Malzeme</label>
+                <select name="Lines[${lineIndex}].STOCKREF"
+                        class="productSelect w-full rounded border px-2 py-1"></select>
             </div>
-        </div>`;
 
-        $("#lineItemsBody").append(row);
-        lineIndex++;
-    });
+            <div class="md:col-span-1">
+                <label class="text-sm">Miktar</label>
+                <input type="number"
+                       name="Lines[${lineIndex}].AMOUNT"
+                       class="w-full rounded border px-2 py-1" />
+            </div>
+
+            <div class="md:col-span-2">
+                <label class="text-sm">Birim</label>
+                <select class="unitSelect w-full rounded border px-2 py-1">
+                    <option value="">-- Seçiniz --</option>
+                </select>
+                <input type="hidden" name="Lines[${lineIndex}].UOMREF" value="0" />
+                <input type="hidden" name="Lines[${lineIndex}].USREF" value="0" />
+            </div>
+
+            <div class="md:col-span-2">
+                <label class="text-sm">Fiyat</label>
+                <input type="number"
+                       name="Lines[${lineIndex}].PRICE"
+                       class="w-full rounded border px-2 py-1" />
+            </div>
+
+            <div class="md:col-span-1">
+                <label class="text-sm">KDV %</label>
+                <input type="number"
+                       name="Lines[${lineIndex}].VAT"
+                       value="20"
+                       class="w-full rounded border px-2 py-1" />
+            </div>
+
+            <div class="md:col-span-1">
+                <label class="text-sm">KDV</label>
+                <input type="number"
+                       name="Lines[${lineIndex}].VATAMNT"
+                       readonly
+                       class="w-full rounded border bg-gray-100 px-2 py-1" />
+            </div>
+
+            <div class="md:col-span-1">
+                <label class="text-sm">Tutar</label>
+                <input type="number"
+                       name="Lines[${lineIndex}].LINENET"
+                       readonly
+                       class="w-full rounded border bg-gray-100 px-2 py-1" />
+            </div>
+
+            <div class="flex items-end md:col-span-1">
+                <button type="button"
+                        class="removeLine w-full rounded bg-red-500 px-2 py-1 text-white hover:bg-red-600">
+                    Sil
+                </button>
+            </div>
+
+        </div>
+    </div>`;
+
+    $("#lineItemsBody").append(row);
+    reindexInvoiceLines();
+});
+
+
 
           @* // //Ürün seçmek için Modal açıyoruz. *@
             $(document).on('mousedown', '.productSelect', function (e) {
             e.preventDefault();
             window.currentDropdown = this;
-            $('#invoiceItemModal').modal('show');
+            // $('#invoiceItemModal').modal('show');
+            openInvoiceItemModal();
         });
 
           $(document).on('click', '.selectable-item', function () {
@@ -512,15 +566,17 @@
                   .empty()
                   .append(`<option value="${ref}" selected>${name}</option>`);
               fillUnits(select);
-              $('#invoiceItemModal').modal('hide');
+              // $('#invoiceItemModal').modal('hide');
+              closeInvoiceItemModal();
           });
 
 
           @* // Satır sil *@
           $("#lineItemsBody").on("click", ".removeLine", function(){
-              if(!confirm('Bu faturayı silmek istediğinize emin misiniz?')) return;
+              if(!confirm('Bu satırı silmek istediğinize emin misiniz?')) return;
 
               $(this).closest(".line-row").remove();
+              reindexInvoiceLines();
 
           });
 
@@ -595,7 +651,6 @@
                 success:
                 function(){
                     alert("Kaydedildi");
-                @* location.reload();  *@
                 window.location.href = "/Invoice/Index";
                 },
                 error: function(err){ console.log(err.responseText); alert("Hata"); }

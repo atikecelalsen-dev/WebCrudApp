@@ -4,10 +4,11 @@ namespace Library.Models
 {
     public class LoginViewModel
     {
-        [Required]
+        [Required(ErrorMessage = "Kullanıcı adı zorunludur")]
+
         public string Username { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Parola zorunludur")]
         [DataType(DataType.Password)]
         public string Password { get; set; }
         public bool RememberMe { get; set; }

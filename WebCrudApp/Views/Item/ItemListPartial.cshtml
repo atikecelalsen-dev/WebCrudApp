@@ -1,26 +1,44 @@
-﻿<div id="itemListContainer">
-    <div class="item-header row d-none d-md-flex">
-        <div class="col-2"><strong>ID</strong></div>
-        <div class="col-2"><strong>CODE</strong></div>
-        <div class="col-4"><strong>NAME</strong></div>
-        <div class="col-3"><strong>Birim Seti</strong></div>
-        <div class="col-1"></div>
+﻿<div id="itemListContainer" class="space-y-2">
+
+    <!-- HEADER (Desktop) -->
+    <div class="hidden grid-cols-12 gap-2 px-3 py-2 text-sm font-semibold text-gray-600 md:grid">
+        <div class="col-span-2">ID</div>
+        <div class="col-span-2">CODE</div>
+        <div class="col-span-4">NAME</div>
+        <div class="col-span-3">Birim Seti</div>
+        <div class="col-span-1"></div>
     </div>
 
     @foreach (var item in Model)
     {
-        <div class="list-row rowSelect"
+        <div class="rowSelect grid cursor-pointer grid-cols-1 gap-2
+                    rounded-lg border border-gray-200 bg-white p-3
+                    transition hover:bg-blue-50 md:grid-cols-12"
+
              data-id="@item.LOGICALREF"
              data-code="@item.CODE"
              data-name="@item.NAME"
              data-unitsetref="@item.UNITSETREF">
 
-            <div class="col-12 col-md-2"><span class="label d-md-none">ID: </span>@item.LOGICALREF</div>
-            <div class="col-12 col-md-2"><span class="label d-md-none">CODE: </span>@item.CODE</div>
-            <div class="col-12 col-md-4"><span class="label d-md-none">NAME: </span>@item.NAME</div>
-            <div class="col-12 col-md-3"><span class="label d-md-none">Birim Seti: </span>@item.UNITNAME</div>
-            <div class="col-12 col-md-1">
-                <a href="@Url.Action("Index", "ItemDetails", new { logicalRef = item.LOGICALREF })">
+            <div class="md:col-span-2">
+                <span class="font-semibold md:hidden">ID: </span>@item.LOGICALREF
+            </div>
+
+            <div class="md:col-span-2">
+                <span class="font-semibold md:hidden">CODE: </span>@item.CODE
+            </div>
+
+            <div class="md:col-span-4">
+                <span class="font-semibold md:hidden">NAME: </span>@item.NAME
+            </div>
+
+            <div class="md:col-span-3">
+                <span class="font-semibold md:hidden">Birim Seti: </span>@item.UNITNAME
+            </div>
+
+            <div class="text-right md:col-span-1">
+                <a class="text-blue-600 hover:underline"
+                   href="@Url.Action("Index", "ItemDetails", new { logicalRef = item.LOGICALREF })">
                     Düzenle
                 </a>
             </div>

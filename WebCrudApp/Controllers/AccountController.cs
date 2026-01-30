@@ -22,6 +22,7 @@ namespace WebCrudApp.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
+          
             if (ModelState.IsValid)
             {
                 if (model.Username == _username && model.Password == _password)
@@ -48,8 +49,14 @@ namespace WebCrudApp.Controllers
                 {
                     ModelState.AddModelError("", "Kullanıcı adı veya şifre hatalı.");
                 }
-            }
                 return RedirectToAction("Index", "Home");
+
+            }
+            else
+            {
+                return View(model);
+            }
+
             }
 
         [HttpGet]
